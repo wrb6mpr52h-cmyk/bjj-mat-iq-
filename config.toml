@@ -1,0 +1,10 @@
+[browser]
+gatherUsageStats = false
+
+[server]
+port = 8501
+address = "localhost"
+headless = true
+
+[global]
+disableWatchdogWarning = true
