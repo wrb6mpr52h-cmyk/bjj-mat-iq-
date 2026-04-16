@@ -31,7 +31,6 @@ env/
 
 # Local data directories (these will be created fresh in cloud)
 user_data/
-athletes/
 reviews/
 data/users/
 data/athletes/
