@@ -1,0 +1,165 @@
+{
+  "metadata": {
+    "review_id": "REV-0001",
+    "reviewed_at": "2026-04-13T23:42:06.986461",
+    "reviewer": "BJJ Mat IQ",
+    "platform_version": "Phase 2.0",
+    "owner": "MSantone"
+  },
+  "match_info": {
+    "match_number": "",
+    "fighter_a": "Milo Santone",
+    "team_a": "",
+    "fighter_b": "",
+    "team_b": "",
+    "belt": "Kids Gray",
+    "weight_class": "Heavy",
+    "age_division": "Juvenile",
+    "gi_nogi": "Gi",
+    "ruleset": "IBJJF",
+    "event": "",
+    "video_url": "",
+    "result": "Milo Santone wins by Points",
+    "submission_type": null
+  },
+  "timeline": [
+    {
+      "timestamp": "00:10",
+      "fighter": "Fighter A",
+      "position": "Neutral Standing",
+      "action": "Takedown (Double Leg)",
+      "result": "Takedown",
+      "points": 2,
+      "notes": "Opponent reached both hands to the head + Level change + Shot Double leg from the outside.  Secured Double leg takedown in side control by pinning opponents hips to the opposite side.  ",
+      "why": "Execute game plan",
+      "positioning": "",
+      "missed_opportunity": ""
+    },
+    {
+      "timestamp": "01:10",
+      "fighter": "Fighter A",
+      "position": "Mount",
+      "action": "Mount Achieved",
+      "result": "Mount",
+      "points": 4,
+      "notes": "",
+      "why": "Execute game plan",
+      "positioning": "",
+      "missed_opportunity": ""
+    },
+    {
+      "timestamp": "00:35",
+      "fighter": "Fighter A",
+      "position": "Side Control",
+      "action": "Missed Scoring Opportunity",
+      "result": "No Points",
+      "points": 0,
+      "notes": "Von Flue Choke attempt, using shoulder pressure to the opponent's neck when they hold on to the guillotine while you are in Side Control.  ",
+      "why": "Capitalize on opponent's mistake",
+      "positioning": "",
+      "missed_opportunity": "Could have finished submission"
+    },
+    {
+      "timestamp": "1:40",
+      "fighter": "Fighter A",
+      "position": "Mount",
+      "action": "Missed Position Maintenance",
+      "result": "No Points",
+      "points": 0,
+      "notes": "Good job trapping the arms to the side with your chest.  Take this opportunity to gift wrap and move to higher mount position to submit or move the back to submit.  ",
+      "why": "Capitalize on opponent's mistake",
+      "positioning": "",
+      "missed_opportunity": "Could have improved position"
+    },
+    {
+      "timestamp": "2:46",
+      "fighter": "Fighter A",
+      "position": "Side Control",
+      "action": "Missed Position Maintenance",
+      "result": "No Points",
+      "points": 0,
+      "notes": "When opponents back is flat on the mat use the arm under his head to apply shoulder pressure to his face to turn his head away from you.  If your opponent cant turn his head towards you then he wont be able to face you to start his escape.  ",
+      "why": "Capitalize on opponent's mistake",
+      "positioning": "",
+      "missed_opportunity": "Could have maintained position"
+    },
+    {
+      "timestamp": "3:05",
+      "fighter": "Fighter A",
+      "position": "Side Control",
+      "action": "Missed Position Maintenance",
+      "result": "No Points",
+      "points": 0,
+      "notes": "Did not apply head pressure while trying to maintain North/South position.  Recommendation would be to get over under grips in North/South lifting the shoulder with the overhook grip and apply head pressure to the chest sternum area.  ",
+      "why": "Capitalize on opponent's mistake",
+      "positioning": "Poor hip control",
+      "missed_opportunity": "Could have maintained position"
+    }
+  ],
+  "scores": {
+    "fighter_a": 6,
+    "fighter_b": 0
+  },
+  "assessments": {
+    "Takedowns / Stand-Up": {
+      "rating": 4,
+      "label": "Strong"
+    },
+    "Guard Passing": {
+      "rating": 4,
+      "label": "Strong"
+    },
+    "Submission Defense": {
+      "rating": 3,
+      "label": "Competent"
+    },
+    "Side Control Offense": {
+      "rating": 2,
+      "label": "Needs Work"
+    },
+    "Transitions": {
+      "rating": 3,
+      "label": "Competent"
+    },
+    "Pressure / Top Game": {
+      "rating": 3,
+      "label": "Competent"
+    },
+    "Pace / Cardio": {
+      "rating": 4,
+      "label": "Strong"
+    },
+    "Composure / IQ": {
+      "rating": 4,
+      "label": "Strong"
+    },
+    "Overall Game Plan": {
+      "rating": 4,
+      "label": "Strong"
+    }
+  },
+  "tactical_tags": [
+    "Controlled the pace",
+    "Capitalized on opponent's mistake",
+    "Good game plan execution",
+    "Good scrambling ability",
+    "Heavy pressure"
+  ],
+  "analysis": {
+    "strengths": [
+      "Takedowns / Stand-Up",
+      "Guard Passing",
+      "Pace / Cardio",
+      "Composure / IQ",
+      "Overall Game Plan"
+    ],
+    "weaknesses": [
+      "Side Control Offense"
+    ],
+    "drill_recommendations": {},
+    "custom_strengths": "",
+    "custom_improvements": "Closed Guard\n- Drill getting out of closed guard.  \n- Stand to pass as soon as your opponent opens their legs.  \n- Avoid putting hands on the mat. \n- Work on multiple ways to apply pressure when posturing in mount.\n                         -  Grip both lapels making a fist in opponenets soler plex \n\n",
+    "missed_opportunities": [],
+    "overall_score": 3.4
+  }
+}

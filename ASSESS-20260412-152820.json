@@ -1,0 +1,86 @@
+{
+  "metadata": {
+    "report_id": "ASSESS-20260412-152820",
+    "athlete_id": "milo_santone_gracie_uni",
+    "generated_by": "MSantone",
+    "created_date": "2026-04-12T15:28:20.217616",
+    "report_type": "assessment"
+  },
+  "match_context": {
+    "match_number": "",
+    "opponent": "",
+    "event": "",
+    "belt_level": "Kids White",
+    "weight_class": "Rooster",
+    "ruleset": "IBJJF",
+    "result": "Milo Santone wins by Points"
+  },
+  "assessments": {
+    "Guard Passing": {
+      "rating": 2,
+      "label": "Needs Work",
+      "demonstrated": true
+    },
+    "Submissions (Offense)": {
+      "rating": 2,
+      "label": "Needs Work",
+      "demonstrated": true
+    },
+    "Mount Offense": {
+      "rating": 2,
+      "label": "Needs Work",
+      "demonstrated": true
+    },
+    "Side Control Offense": {
+      "rating": 3,
+      "label": "Competent",
+      "demonstrated": true
+    },
+    "Grip Fighting": {
+      "rating": 3,
+      "label": "Competent",
+      "demonstrated": true
+    },
+    "Transitions": {
+      "rating": 3,
+      "label": "Competent",
+      "demonstrated": true
+    },
+    "Pressure / Top Game": {
+      "rating": 2,
+      "label": "Needs Work",
+      "demonstrated": true
+    },
+    "Pace / Cardio": {
+      "rating": 3,
+      "label": "Competent",
+      "demonstrated": true
+    },
+    "Composure / IQ": {
+      "rating": 4,
+      "label": "Strong",
+      "demonstrated": true
+    },
+    "Overall Game Plan": {
+      "rating": 4,
+      "label": "Strong",
+      "demonstrated": true
+    }
+  },
+  "tactical_tags": [
+    "Smart use of clock"
+  ],
+  "coach_notes": "",
+  "timeline_events": 8,
+  "strengths": [
+    "Composure / IQ",
+    "Overall Game Plan"
+  ],
+  "improvement_areas": [
+    "Guard Passing",
+    "Submissions (Offense)",
+    "Mount Offense",
+    "Pressure / Top Game"
+  ],
+  "overall_score": 2.8
+}

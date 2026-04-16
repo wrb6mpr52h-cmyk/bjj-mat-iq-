@@ -1,0 +1,234 @@
+
+
+{
+  "metadata": {
+    "review_id": "REV-0003",
+    "reviewed_at": "2026-04-12T15:43:37.137479",
+    "reviewer": "BJJ Mat IQ",
+    "platform_version": "Phase 2.0",
+    "owner": "MSantone"
+  },
+  "match_info": {
+    "match_number": "",
+    "fighter_a": "Milo Santone",
+    "team_a": "Gracie United Ascension",
+    "fighter_b": "",
+    "team_b": "",
+    "belt": "Kids White",
+    "weight_class": "Rooster",
+    "age_division": "Juvenile",
+    "gi_nogi": "Gi",
+    "ruleset": "IBJJF",
+    "event": "",
+    "video_url": "",
+    "result": "Milo Santone wins by Points",
+    "submission_type": null
+  },
+  "timeline": [
+    {
+      "timestamp": "00:10",
+      "fighter": "Fighter A",
+      "position": "Neutral Standing",
+      "action": "Takedown (Double Leg)",
+      "result": "Takedown",
+      "points": 2,
+      "notes": "Opponent reached both hands to the head + Level change + Shot Double leg from the outside.  Secured Double leg takedown in side control by pinning opponents hips to the opposite side.  ",
+      "why": "Execute game plan",
+      "positioning": "",
+      "missed_opportunity": ""
+    },
+    {
+      "timestamp": "01:10",
+      "fighter": "Fighter A",
+      "position": "Mount",
+      "action": "Mount Achieved",
+      "result": "Mount",
+      "points": 4,
+      "notes": "",
+      "why": "Execute game plan",
+      "positioning": "",
+      "missed_opportunity": ""
+    },
+    {
+      "timestamp": "00:35",
+      "fighter": "Fighter A",
+      "position": "Side Control",
+      "action": "Missed Scoring Opportunity",
+      "result": "No Points",
+      "points": 0,
+      "notes": "Von Flue Choke attempt, using shoulder pressure to the opponent's neck when they hold on to the guillotine while you are in Side Control.  ",
+      "why": "Capitalize on opponent's mistake",
+      "positioning": "",
+      "missed_opportunity": "Could have finished submission"
+    },
+    {
+      "timestamp": "1:40",
+      "fighter": "Fighter A",
+      "position": "Mount",
+      "action": "Missed Position Maintenance",
+      "result": "No Points",
+      "points": 0,
+      "notes": "Good job trapping the arms to the side with your chest.  Take this opportunity to gift wrap and move to higher mount position to submit or move the back to submit.  ",
+      "why": "Capitalize on opponent's mistake",
+      "positioning": "",
+      "missed_opportunity": "Could have improved position"
+    },
+    {
+      "timestamp": "2:46",
+      "fighter": "Fighter A",
+      "position": "Side Control",
+      "action": "Missed Position Maintenance",
+      "result": "No Points",
+      "points": 0,
+      "notes": "When opponents back is flat on the mat use the arm under his head to apply shoulder pressure to his face to turn his head away from you.  If your opponent cant turn his head towards you then he wont be able to face you to start his escape.  ",
+      "why": "Capitalize on opponent's mistake",
+      "positioning": "",
+      "missed_opportunity": "Could have maintained position"
+    },
+    {
+      "timestamp": "3:05",
+      "fighter": "Fighter A",
+      "position": "Side Control",
+      "action": "Missed Position Maintenance",
+      "result": "No Points",
+      "points": 0,
+      "notes": "Did not apply head pressure while trying to maintain North/South position.  Recommendation would be to get over under grips in North/South lifting the shoulder with the overhook grip and apply head pressure to the chest sternum area.  ",
+      "why": "Capitalize on opponent's mistake",
+      "positioning": "Poor hip control",
+      "missed_opportunity": "Could have maintained position"
+    },
+    {
+      "timestamp": "03:11",
+      "fighter": "Fighter A",
+      "position": "North-South",
+      "action": "Position Lost",
+      "result": "No Points",
+      "points": 0,
+      "notes": "Did not apply head pressure while trying to maintain North/South position.  Recommendation would be to get over under grips in North/South lifting the shoulder with the overhook grip and apply head pressure to the chest sternum area.  ",
+      "why": "Capitalize on opponent's mistake",
+      "positioning": "Poor hip control",
+      "missed_opportunity": "Could have maintained position"
+    },
+    {
+      "timestamp": "03:11",
+      "fighter": "Fighter A",
+      "position": "Half Guard (Top)",
+      "action": "Position Advance",
+      "result": "No Points",
+      "points": 0,
+      "notes": "Missed opportunity to Reverse Kesa Gatame pass.",
+      "why": "Capitalize on opponent's mistake",
+      "positioning": "",
+      "missed_opportunity": "Could have passed guard"
+    }
+  ],
+  "scores": {
+    "fighter_a": 6,
+    "fighter_b": 0
+  },
+  "assessments": {
+    "Guard Passing": {
+      "rating": 2,
+      "label": "Needs Work"
+    },
+    "Submissions (Offense)": {
+      "rating": 2,
+      "label": "Needs Work"
+    },
+    "Mount Offense": {
+      "rating": 2,
+      "label": "Needs Work"
+    },
+    "Side Control Offense": {
+      "rating": 3,
+      "label": "Competent"
+    },
+    "Grip Fighting": {
+      "rating": 3,
+      "label": "Competent"
+    },
+    "Transitions": {
+      "rating": 3,
+      "label": "Competent"
+    },
+    "Pressure / Top Game": {
+      "rating": 2,
+      "label": "Needs Work"
+    },
+    "Pace / Cardio": {
+      "rating": 3,
+      "label": "Competent"
+    },
+    "Composure / IQ": {
+      "rating": 4,
+      "label": "Strong"
+    },
+    "Overall Game Plan": {
+      "rating": 4,
+      "label": "Strong"
+    }
+  },
+  "tactical_tags": [
+    "Smart use of clock"
+  ],
+  "analysis": {
+    "strengths": [
+      "Composure / IQ (Strong)",
+      "Overall Game Plan (Strong)"
+    ],
+    "weaknesses": [
+      "Guard Passing (Needs Work)",
+      "Submissions (Offense) (Needs Work)",
+      "Mount Offense (Needs Work)",
+      "Pressure / Top Game (Needs Work)"
+    ],
+    "drill_recommendations": {
+      "Guard Passing": {
+        "rating": 2,
+        "rating_label": "Needs Work",
+        "drills": [
+          "Torreando to knee slice chain drill",
+          "Over-under pass pressure reps",
+          "Leg drag to side control drill",
+          "Headquarters position reset drill",
+          "Body lock pass to mount flow"
+        ]
+      },
+      "Submissions (Offense)": {
+        "rating": 2,
+        "rating_label": "Needs Work",
+        "drills": [
+          "Armbar from guard setup chain",
+          "Triangle entry from multiple positions",
+          "Kimura grip to sweep or submit flow",
+          "Submission chain: armbar > triangle > omoplata"
+        ]
+      },
+      "Mount Offense": {
+        "rating": 2,
+        "rating_label": "Needs Work",
+        "drills": [
+          "Mount maintenance drill (partner bucks/shrimps)",
+          "High mount progression to armbar/choke",
+          "Gift wrap from mount to back take",
+          "S-mount to armbar entry drill"
+        ]
+      },
+      "Pressure / Top Game": {
+        "rating": 2,
+        "rating_label": "Needs Work",
+        "drills": [
+          "Shoulder pressure maintenance drill",
+          "Cross-face and hip pressure reps",
+          "Heavy top ride: partner tries to escape (3 min)",
+          "Knee on belly pressure and transition drill"
+        ]
+      }
+    },
+    "custom_strengths": "",
+    "custom_improvements": "",
+    "ai_summary": "# \ud83e\udd16 AI SUMMARY REPORT\n\n**Match Outcome:** Won by points - Strong performance with room for optimization\n**Final Score:** A: 6 | B: 0\n\n## \ud83d\udd0d Key Performance Insights\n**Dominant Areas:** Composure / IQ, Overall Game Plan\n**Critical Gaps:** Guard Passing, Submissions (Offense), Mount Offense\n**Scoring Moments:** 2 successful scoring actions\n**Missed Opportunities:** 6 identified chances for improvement\n\n## \ud83c\udfaf Key Missed Opportunities\n**Could have maintained position** (occurred 3 times)\n**Could have finished submission** (occurred 1 time)\n   \u2022 Drill submission setups with more precision\n   \u2022 Practice maintaining control during finish attempts\n**Could have improved position** (occurred 1 time)\n   \u2022 Work on position advancement chains\n   \u2022 Study transition timing from timeline moments\n\n**1. Guard Passing** (Priority: HIGH)\n   \u2022 Headquarters position maintenance drill (10 min daily)\n   \u2022 Pressure passing vs speed passing situation awareness\n   \u2022 Study guard player's retention patterns from timeline\n\n**2. Submissions (Offense)** (Priority: HIGH)\n   \u2022 Submission chain flow: primary > backup > position\n   \u2022 Setup drilling without resistance for timing\n   \u2022 Study missed opportunities from timeline events\n\n**3. Mount Offense** (Priority: HIGH)\n   \u2022 Focus on drilling fundamentals with resistance\n   \u2022 Positional sparring from disadvantageous positions\n   \u2022 Video study of high-level athletes in this area\n\n## \ud83d\udcca Tactical Pattern Analysis\n\n## \ud83c\udfae Next Match Game Plan\n**Primary Strategy:** Focus on proven strengths while shoring up critical gaps\n**Lean Into:** Composure / IQ - Your most reliable weapon\n**Avoid Early:** Guard Passing - Work this in training first\n\n**Pre-Match Preparation:**\n   \u2022 Drill top 2 priority areas for 15 minutes before competing\n   \u2022 Visualization: Successfully executing your strongest techniques\n   \u2022 Game plan: Lead with strengths, use improved areas situationally\n\n## \ud83d\udcc5 Recommended Training Split\n**Intensive Phase:** 70% fundamentals, 30% advanced techniques\n**Weekly Focus:** 3x positional drilling, 2x live rolling, 1x specific techniques\n"
+  },
+  "coach_notes": "",
+  "owner": "MSantone"
+}
