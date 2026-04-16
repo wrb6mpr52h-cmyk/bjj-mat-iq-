@@ -1,18 +1,26 @@
 {
   "athlete_id": "milo_santone_gracie_uni",
   "name": "Milo Santone",
-  "team": "Gracie United Ascension",
+  "team": "",
   "owner": "MSantone",
-  "created_at": "2026-04-11T21:47:34.630230",
-  "match_history": [],
+  "created_at": "2026-04-11T19:28:54.775404",
+  "match_history": [
+    "REV-0001",
+    "REV-0003"
+  ],
   "belt_progression": [
     {
       "belt": "White",
       "date": "2026-04-11"
+    },
+    {
+      "belt": "Kids Gray",
+      "date": "2026-04-12"
     }
   ],
   "notes": "",
-  "current_belt": "White",
-  "current_weight_class": "Heavy",
-  "last_updated": "2026-04-11T21:48:28.477260"
+  "current_belt": "Kids Gray",
+  "current_age_division": "Juvenile",
+  "last_updated": "2026-04-14T01:01:01.303101",
+  "current_weight_class": "Heavy"
 }
