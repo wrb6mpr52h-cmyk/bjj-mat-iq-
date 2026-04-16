@@ -196,11 +196,16 @@ with col_user:
         
         # Admin navigation
         if user_info['role'] == 'admin':
-            col_admin, col_logout = st.columns(2)
+            col_admin_users, col_admin_reviews, col_logout = st.columns(3)
             
-            with col_admin:
+            with col_admin_users:
                 if st.button("👥 User Management", key="nav_user_mgmt", help="Manage user accounts"):
                     st.session_state.page_mode = "user_management"
+                    st.rerun()
+            
+            with col_admin_reviews:
+                if st.button("📝 Review Management", key="nav_review_mgmt", help="Manage all reviews"):
+                    st.session_state.page_mode = "admin_reviews"
                     st.rerun()
             
             with col_logout:
@@ -246,7 +251,7 @@ if "current_athlete_id" not in st.session_state:
 if "athlete_linked" not in st.session_state:
     st.session_state.athlete_linked = False
 if "page_mode" not in st.session_state:
-    st.session_state.page_mode = "landing"  # landing, match_review, progress_tracking, member_info
+    st.session_state.page_mode = "landing"
 
 def flatten_dict(d):
     items = []
@@ -1823,6 +1828,159 @@ elif st.session_state.page_mode == "progress_tracking":
                         st.write(f"👤 **{athlete['name']}** - No matches recorded")
         else:
             st.warning("No athletes found for team analysis.")
+
+elif st.session_state.page_mode == "admin_reviews":
+    if st.button("← Back to Home", type="secondary", key="back_admin_reviews"):
+        st.session_state.page_mode = "landing"
+        st.rerun()
+    
+    current_user_info = user_manager.get_user_info(st.session_state.current_user)
+    if not current_user_info or current_user_info.get("role") != "admin":
+        st.error("❌ Access denied. Administrator privileges are required.")
+        st.stop()
+    
+    st.subheader("📝 Review Management")
+    st.info("🔧 **Admin Panel:** View, search, edit, and delete all reviews")
+    
+    col_filter1, col_filter2, col_filter3 = st.columns(3)
+    with col_filter1:
+        review_search = st.text_input("Search", key="admin_review_search", placeholder="Review ID, user, subject, or text")
+    with col_filter2:
+        review_user = st.text_input("Filter by User", key="admin_review_user", placeholder="Username/owner")
+    with col_filter3:
+        page_size = st.selectbox("Reviews per page", [5, 10, 20, 50], index=1, key="admin_review_page_size")
+    
+    rating_min, rating_max = st.slider("Rating range", 1.0, 5.0, (1.0, 5.0), 0.1, key="admin_review_rating_range")
+    
+    with st.spinner("Loading reviews..."):
+        admin_reviews_result = athlete_manager.admin_list_reviews(
+            page=st.session_state.get("admin_reviews_page", 1),
+            page_size=page_size,
+            filters={
+                "search": review_search,
+                "user": review_user,
+                "rating_min": rating_min,
+                "rating_max": rating_max
+            }
+        )
+    
+    admin_reviews = admin_reviews_result["items"]
+    total_admin_reviews = admin_reviews_result["total"]
+    current_page = admin_reviews_result["page"]
+    total_pages = max(1, (total_admin_reviews + page_size - 1) // page_size)
+    
+    col_page_prev, col_page_info, col_page_next = st.columns([1, 2, 1])
+    with col_page_prev:
+        if st.button("← Prev", key="admin_reviews_prev", disabled=current_page <= 1):
+            st.session_state.admin_reviews_page = max(1, current_page - 1)
+            st.rerun()
+    with col_page_info:
+        st.caption(f"Showing page {current_page} of {total_pages} • Total reviews: {total_admin_reviews}")
+    with col_page_next:
+        if st.button("Next →", key="admin_reviews_next", disabled=current_page >= total_pages):
+            st.session_state.admin_reviews_page = min(total_pages, current_page + 1)
+            st.rerun()
+    
+    if not admin_reviews:
+        st.info("No reviews found for the selected filters.")
+    else:
+        for review in admin_reviews:
+            review_id = review.get("id", "")
+            summary_title = f"{review_id} • {review.get('subject', 'Unknown Subject')}"
+            with st.expander(summary_title):
+                st.write(f"**Created:** {review.get('created_at', 'N/A') or 'N/A'}")
+                st.write(f"**Updated:** {review.get('updated_at', 'N/A') or 'N/A'}")
+                st.write(f"**Reviewer:** {review.get('reviewer', 'N/A') or 'N/A'}")
+                st.write(f"**User:** {review.get('user', 'N/A') or 'N/A'}")
+                rating_value = review.get("rating")
+                st.write(f"**Rating:** {rating_value if rating_value is not None else 'N/A'}")
+                st.write(f"**Text:** {review.get('text', '') or '—'}")
+                status_value = review.get("status") or review.get("visibility") or "N/A"
+                st.write(f"**Status/Visibility:** {status_value}")
+                
+                col_edit, col_delete = st.columns(2)
+                with col_edit:
+                    if st.button("✏️ Edit Review", key=f"admin_edit_{review_id}", use_container_width=True):
+                        st.session_state.admin_selected_review_id = review_id
+                        st.rerun()
+                with col_delete:
+                    if st.button("🗑️ Delete Review", key=f"admin_delete_{review_id}", use_container_width=True):
+                        st.session_state.admin_confirm_delete_review_id = review_id
+                        st.rerun()
+                
+                if st.session_state.get("admin_confirm_delete_review_id") == review_id:
+                    st.warning(f"Are you sure you want to permanently delete review {review_id}?")
+                    confirm_col, cancel_col = st.columns(2)
+                    with confirm_col:
+                        if st.button("✅ Confirm Delete", key=f"admin_confirm_delete_{review_id}", use_container_width=True):
+                            if athlete_manager.admin_delete_review(review_id):
+                                st.success(f"Deleted review {review_id}")
+                                st.session_state.admin_confirm_delete_review_id = None
+                                if st.session_state.get("admin_selected_review_id") == review_id:
+                                    st.session_state.admin_selected_review_id = None
+                                st.rerun()
+                            else:
+                                st.error("Failed to delete review")
+                    with cancel_col:
+                        if st.button("Cancel", key=f"admin_cancel_delete_{review_id}", use_container_width=True):
+                            st.session_state.admin_confirm_delete_review_id = None
+                            st.rerun()
+    
+    selected_review_id = st.session_state.get("admin_selected_review_id")
+    if selected_review_id:
+        st.markdown("---")
+        st.subheader(f"✏️ Edit Review: {selected_review_id}")
+        selected_review = athlete_manager.admin_get_review(selected_review_id)
+        
+        if not selected_review:
+            st.error("Selected review no longer exists.")
+            st.session_state.admin_selected_review_id = None
+        else:
+            with st.form(f"admin_edit_review_form_{selected_review_id}"):
+                coach_notes_value = st.text_area(
+                    "Review Text (Coach Notes)",
+                    value=selected_review.get("coach_notes", ""),
+                    height=180
+                )
+                
+                assessment_updates = {}
+                assessments = selected_review.get("assessments", {})
+                if assessments:
+                    st.markdown("**Ratings**")
+                    for area in sorted(assessments.keys()):
+                        current_rating = assessments.get(area, {}).get("rating", 3)
+                        if not isinstance(current_rating, int):
+                            current_rating = 3
+                        assessment_updates[area] = st.number_input(
+                            area,
+                            min_value=1,
+                            max_value=5,
+                            value=current_rating,
+                            step=1,
+                            key=f"admin_rating_{selected_review_id}_{area}"
+                        )
+                else:
+                    st.caption("No rating fields found in this review.")
+                
+                save_edit = st.form_submit_button("💾 Save Review Changes", type="primary")
+                if save_edit:
+                    try:
+                        update_success = athlete_manager.admin_update_review(
+                            selected_review_id,
+                            {
+                                "coach_notes": coach_notes_value,
+                                "assessments": {k: int(v) for k, v in assessment_updates.items()}
+                            }
+                        )
+                        if update_success:
+                            st.success("✅ Review updated successfully")
+                            st.rerun()
+                        else:
+                            st.error("❌ Failed to update review")
+                    except (PermissionError, ValueError) as update_err:
+                        st.error(f"❌ {str(update_err)}")
+    
+    st.stop()
 
 elif st.session_state.page_mode == "user_management":
     # USER MANAGEMENT PAGE (Admin Only)
