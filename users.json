@@ -26,7 +26,7 @@
       "last_login": "2026-04-15T21:12:49.302184",
       "active": true,
       "owned_teams": [],
-      "owned_athletes": [],
+      "owned_athletes": ["milo_santone_gracie_uni"],
       "password_reset_by": "Self-Reset",
       "password_reset_at": "2026-04-15T20:39:40.643227",
       "last_updated": "2026-04-15T20:39:40.643248"
