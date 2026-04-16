@@ -70,7 +70,7 @@ if not st.session_state.authenticated:
     st.markdown("**The complete BJJ match analysis and progress tracking system**")
     st.info("📹 **Analyze match videos** • 📊 **Track skill development** • 🎯 **Get personalized training recommendations**")
 
-    auth_tab1, auth_tab2 = st.tabs(["Login", "Create Account"])
+    auth_tab1, auth_tab2, auth_tab3 = st.tabs(["Login", "Create Account", "Reset Password"])
 
     with auth_tab1:
         with st.form("login_form"):
@@ -92,6 +92,9 @@ if not st.session_state.authenticated:
                         st.error("Invalid username or password")
                 else:
                     st.warning("Please enter both username and password")
+        
+        # Show forgot password link
+        st.caption("📝 **Forgot your password?** Use the 'Reset Password' tab above to reset it.")
 
     with auth_tab2:
         with st.form("register_form"):
@@ -135,6 +138,39 @@ if not st.session_state.authenticated:
                         st.success("Account created successfully! Please login with your new credentials.")
                     else:
                         st.error(message)
+
+    with auth_tab3:
+        with st.form("reset_password_form"):
+            st.subheader("🔑 Reset Your Password")
+            st.info("🔄 **Self-Service Password Reset**\n"
+                   "Enter your username and choose a new password.")
+            
+            reset_username = st.text_input("Username*", help="Enter your existing username")
+            reset_email = st.text_input("Email (for verification)*", help="Enter your email address for verification")
+            new_reset_password = st.text_input("New Password*", type="password", help="Choose a new password (minimum 6 characters)")
+            confirm_reset_password = st.text_input("Confirm New Password*", type="password", help="Re-enter your new password")
+            
+            reset_submitted = st.form_submit_button("🔑 Reset Password", type="primary")
+            
+            if reset_submitted:
+                if not all([reset_username, reset_email, new_reset_password, confirm_reset_password]):
+                    st.error("❌ Please fill in all fields")
+                elif new_reset_password != confirm_reset_password:
+                    st.error("❌ New passwords don't match")
+                elif len(new_reset_password) < 6:
+                    st.error("❌ Password must be at least 6 characters long")
+                else:
+                    # Verify user exists and email matches
+                    success, message = user_manager.self_reset_password(
+                        username=reset_username,
+                        email=reset_email,
+                        new_password=new_reset_password
+                    )
+                    if success:
+                        st.success("✅ Password reset successfully! You can now login with your new password.")
+                        st.info("🔐 Please use the 'Login' tab to access your account.")
+                    else:
+                        st.error(f"❌ {message}")
 
     st.stop()  # Stop execution until user is authenticated
 
@@ -1842,14 +1878,8 @@ elif st.session_state.page_mode == "user_management":
         # Get list of users for password reset
         all_users = user_manager.get_all_users()
         
-        # Debug info
-        st.caption(f"Found {len(all_users)} total users")
-        if all_users:
-            st.caption(f"Users: {[u['username'] for u in all_users]}")
-        
         if all_users:
             user_options = [u['username'] for u in all_users]  # Show all users, not just active ones
-            st.caption(f"User options for dropdown: {user_options}")  # Additional debug
             selected_reset_user = st.selectbox("Select User to Reset Password", ["Select User"] + user_options, key="password_reset_user_select")
             
             if selected_reset_user != "Select User":
