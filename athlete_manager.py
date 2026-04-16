@@ -54,6 +54,11 @@ class AthleteManager:
                 user_dir = os.path.join(self.base_dir, "users", self.current_user, "athletes")
                 if os.path.exists(user_dir):
                     dirs.append(user_dir)
+            
+            # Also check global directory for shared athletes
+            global_dir = os.path.join(self.base_dir, "athletes")
+            if os.path.exists(global_dir):
+                dirs.append(global_dir)
         
         elif self.user_role == "individual":
             # Individual users only see their own athletes
@@ -61,6 +66,11 @@ class AthleteManager:
                 user_dir = os.path.join(self.base_dir, "users", self.current_user, "athletes")
                 if os.path.exists(user_dir):
                     dirs.append(user_dir)
+            
+            # Also check global directory for shared athletes
+            global_dir = os.path.join(self.base_dir, "athletes")
+            if os.path.exists(global_dir):
+                dirs.append(global_dir)
         
         return dirs
     
@@ -650,6 +660,10 @@ class AthleteManager:
                         profile_path = os.path.join(athlete_dir, filename)
                         with open(profile_path, 'r') as f:
                             profile = json.load(f)
+                        
+                        # Normalize athlete_id in-memory to match filename
+                        if profile.get("athlete_id") != athlete_id:
+                            profile["athlete_id"] = athlete_id
                         
                         # Check access permissions
                         if self._can_access_athlete(profile):
