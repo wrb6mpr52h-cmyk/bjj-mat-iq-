@@ -20,7 +20,9 @@ class UserManager:
     def __init__(self, users_dir="users", user_data_dir="user_data"):
         self.users_dir = users_dir
         self.user_data_dir = user_data_dir
-        self.users_file = os.path.join(users_dir, "users.json")
+        self.default_users_file = os.path.join(users_dir, "users.json")
+        self.legacy_users_file = "users.json"
+        self.users_file = self._resolve_users_file()
         
         # Create directories
         os.makedirs(users_dir, exist_ok=True)
@@ -48,6 +50,14 @@ class UserManager:
                 "description": "Can only view and edit own athlete data"
             }
         }
+
+    def _resolve_users_file(self) -> str:
+        """Resolve active users storage path with backward compatibility."""
+        if os.path.exists(self.default_users_file):
+            return self.default_users_file
+        if os.path.exists(self.legacy_users_file):
+            return self.legacy_users_file
+        return self.default_users_file
     
     def _initialize_users_file(self):
         """Initialize empty users file with admin account."""
