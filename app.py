@@ -56,16 +56,6 @@ st.set_page_config(
 # Initialize user manager
 user_manager = UserManager()
 
-# Debug: Check if users file exists
-users_file_path = os.path.join("users", "users.json")
-if not os.path.exists(users_file_path):
-    st.error(f"❌ Users file not found at: {users_file_path}")
-    st.error(f"Current working directory: {os.getcwd()}")
-    st.error(f"Files in current directory: {os.listdir('.')}")
-    if os.path.exists("users"):
-        st.error(f"Files in users directory: {os.listdir('users')}")
-    st.stop()
-
 # Authentication check
 if "authenticated" not in st.session_state:
     st.session_state.authenticated = False
