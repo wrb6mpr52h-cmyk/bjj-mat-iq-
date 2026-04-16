@@ -7,9 +7,8 @@ import json
 import os
 try:
     import bcrypt
-except ImportError as e:
-    print(f"Warning: bcrypt not available: {e}")
-    print("Password hashing will be disabled. Install bcrypt for production use.")
+except ImportError:
+    # bcrypt not available - will use fallback hashing
     bcrypt = None
 from datetime import datetime
 from typing import Dict, List, Optional, Tuple
@@ -80,7 +79,6 @@ class UserManager:
         if bcrypt is None:
             # Fallback for when bcrypt is not available (NOT secure for production)
             import hashlib
-            print("Warning: Using insecure password hashing. Install bcrypt for production.")
             return hashlib.sha256(password.encode()).hexdigest()
         
         salt = bcrypt.gensalt()
@@ -88,12 +86,20 @@ class UserManager:
     
     def _verify_password(self, password: str, hashed: str) -> bool:
         """Verify password against hash."""
+        # Check if hash is empty or invalid
+        if not hashed or not hashed.strip():
+            return False
+        
         if bcrypt is None:
             # Fallback for when bcrypt is not available (NOT secure for production)
             import hashlib
             return hashlib.sha256(password.encode()).hexdigest() == hashed
         
-        return bcrypt.checkpw(password.encode('utf-8'), hashed.encode('utf-8'))
+        try:
+            return bcrypt.checkpw(password.encode('utf-8'), hashed.encode('utf-8'))
+        except ValueError:
+            # Handle invalid salt/hash format - silently return False
+            return False
     
     def create_user(self, username: str, email: str, password: str, role: str, 
                    team: str = "", created_by: str = "") -> Tuple[bool, str]:
@@ -324,6 +330,28 @@ class UserManager:
             return True, f"Athlete '{athlete_id}' assigned to {username}"
         
         return False, f"User {username} already owns athlete '{athlete_id}'"
+    
+    def reset_user_password(self, username: str, new_password: str, reset_by: str = "") -> Tuple[bool, str]:
+        """Reset a user's password (admin only, or self-reset)."""
+        users_data = self._load_users()
+        
+        if username not in users_data["users"]:
+            return False, "User not found"
+        
+        try:
+            # Hash the new password
+            new_hash = self._hash_password(new_password)
+            
+            # Update user data
+            users_data["users"][username]["password_hash"] = new_hash
+            users_data["users"][username]["password_reset_by"] = reset_by
+            users_data["users"][username]["password_reset_at"] = datetime.now().isoformat()
+            
+            self._save_users(users_data)
+            return True, "Password reset successfully"
+            
+        except Exception as e:
+            return False, f"Error resetting password: {str(e)}"
 
 def init_session_state():
     """Initialize session state for authentication."""

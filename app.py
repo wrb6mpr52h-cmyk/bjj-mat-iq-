@@ -157,12 +157,28 @@ with col_user:
     if user_info:
         st.write(f"👤 {user_info.get('username', st.session_state.current_user)}")
         st.caption(f"Role: {user_info['role'].replace('_', ' ').title()}")
-
-    if st.button("Logout", key="logout_btn"):
-        st.session_state.authenticated = False
-        st.session_state.current_user = None
-        st.session_state.user_role = None
-        st.rerun()
+        
+        # Admin navigation
+        if user_info['role'] == 'admin':
+            col_admin, col_logout = st.columns(2)
+            
+            with col_admin:
+                if st.button("👥 User Management", key="nav_user_mgmt", help="Manage user accounts"):
+                    st.session_state.page_mode = "user_management"
+                    st.rerun()
+            
+            with col_logout:
+                if st.button("Logout", key="logout_btn"):
+                    st.session_state.authenticated = False
+                    st.session_state.current_user = None
+                    st.session_state.user_role = None
+                    st.rerun()
+        else:
+            if st.button("Logout", key="logout_btn"):
+                st.session_state.authenticated = False
+                st.session_state.current_user = None
+                st.session_state.user_role = None
+                st.rerun()
 
 # Initialize athlete manager with current user context
 athlete_manager = AthleteManager(
@@ -943,9 +959,6 @@ elif st.session_state.page_mode == "progress_tracking":
         user_role = st.session_state.get("user_role", "individual")
         current_user = st.session_state.get("current_user", "")
         
-        # Debug info
-        st.write(f"🔍 Debug - Current User: {current_user}, User Role: {user_role}")
-        
         if "analysis_mode" not in st.session_state:
             # Auto-select Individual mode for individual users
             if user_role == "individual":
@@ -961,6 +974,7 @@ elif st.session_state.page_mode == "progress_tracking":
         else:
             # Show mode selection for admin and team_owner users
             st.warning(f"Admin/Team Owner Mode (Role: {user_role}) - Select analysis type:")
+            
             col_mode1, col_mode2, col_mode3 = st.columns(3)
             
             with col_mode1:
@@ -1762,6 +1776,158 @@ elif st.session_state.page_mode == "progress_tracking":
                         st.write(f"👤 **{athlete['name']}** - No matches recorded")
         else:
             st.warning("No athletes found for team analysis.")
+
+elif st.session_state.page_mode == "user_management":
+    # USER MANAGEMENT PAGE (Admin Only)
+    if st.button("← Back to Home", type="secondary", key="back_user_mgmt"):
+        st.session_state.page_mode = "landing"
+        st.rerun()
+        
+    st.subheader("👥 User Management")
+    st.info("🔧 **Admin Panel:** Manage user accounts, passwords, and permissions")
+    
+    # Create tabs for different user management functions
+    mgmt_tab1, mgmt_tab2, mgmt_tab3 = st.tabs(["👥 View Users", "🔑 Reset Password", "🆕 Create User"])
+    
+    with mgmt_tab1:
+        # List all users
+        all_users = user_manager.get_all_users()
+        
+        if all_users:
+            st.markdown(f"**Total Users:** {len(all_users)}")
+            st.markdown("---")
+            
+            for user in all_users:
+                col_user, col_info, col_actions = st.columns([2, 2, 1])
+                
+                with col_user:
+                    status_icon = "🟢" if user.get("active", True) else "🔴"
+                    st.markdown(f"**{status_icon} {user['username']}**")
+                    st.caption(f"📧 {user.get('email', 'No email')}")
+                
+                with col_info:
+                    role = user.get('role', 'individual').replace('_', ' ').title()
+                    team = user.get('team', 'No team')
+                    created_date = user.get('created_at', '')[:10]
+                    last_login = user.get('last_login', '')[:10] if user.get('last_login') else 'Never'
+                    
+                    st.write(f"🎭 **Role:** {role}")
+                    st.caption(f"🏆 Team: {team}")
+                    st.caption(f"📅 Created: {created_date}")
+                    st.caption(f"🕒 Last Login: {last_login}")
+                
+                with col_actions:
+                    if user['username'] != st.session_state.current_user:  # Don't allow admin to disable themselves
+                        if user.get("active", True):
+                            if st.button("🚫 Deactivate", key=f"deactivate_{user['username']}", help="Deactivate user account"):
+                                success, message = user_manager.deactivate_user(
+                                    username=user['username'],
+                                    deactivated_by=st.session_state.current_user
+                                )
+                                if success:
+                                    st.success(f"✅ {message}")
+                                    st.rerun()
+                                else:
+                                    st.error(f"❌ {message}")
+                
+                st.markdown("---")
+        else:
+            st.warning("⚠️ No users found in the system.")
+    
+    with mgmt_tab2:
+        # Reset user password
+        st.markdown("🔑 **Reset User Password**")
+        st.caption("Select a user and set a new password for their account")
+        
+        # Get list of users for password reset
+        all_users = user_manager.get_all_users()
+        
+        # Debug info
+        st.caption(f"Found {len(all_users)} total users")
+        if all_users:
+            st.caption(f"Users: {[u['username'] for u in all_users]}")
+        
+        if all_users:
+            user_options = [u['username'] for u in all_users]  # Show all users, not just active ones
+            st.caption(f"User options for dropdown: {user_options}")  # Additional debug
+            selected_reset_user = st.selectbox("Select User to Reset Password", ["Select User"] + user_options, key="password_reset_user_select")
+            
+            if selected_reset_user != "Select User":
+                # Find the selected user to check if they're active
+                selected_user_info = next((u for u in all_users if u['username'] == selected_reset_user), None)
+                if selected_user_info and not selected_user_info.get("active", True):
+                    st.warning(f"⚠️ Note: {selected_reset_user} is currently deactivated. Resetting password will not automatically reactivate the account.")
+                
+                with st.form("password_reset_form"):
+                    st.markdown(f"**Resetting password for:** {selected_reset_user}")
+                    
+                    new_password = st.text_input("New Password", type="password", help="Enter the new password")
+                    confirm_password = st.text_input("Confirm New Password", type="password", help="Re-enter the password to confirm")
+                    
+                    reset_submitted = st.form_submit_button("🔑 Reset Password", type="primary")
+                    
+                    if reset_submitted:
+                        if not new_password:
+                            st.error("❌ Password cannot be empty")
+                        elif new_password != confirm_password:
+                            st.error("❌ Passwords don't match")
+                        elif len(new_password) < 6:
+                            st.error("❌ Password must be at least 6 characters long")
+                        else:
+                            success, message = user_manager.reset_user_password(
+                                username=selected_reset_user,
+                                new_password=new_password,
+                                reset_by=st.session_state.current_user
+                            )
+                            if success:
+                                st.success(f"✅ {message}")
+                                st.info(f"🔐 User '{selected_reset_user}' can now login with the new password.")
+                            else:
+                                st.error(f"❌ {message}")
+        else:
+            st.warning("⚠️ No users found in the system.")
+    
+    with mgmt_tab3:
+        # Create new user
+        st.markdown("🆕 **Create New User Account**")
+        st.caption("Add a new user to the system")
+        
+        with st.form("admin_create_user_form"):
+            new_username = st.text_input("Username*", help="Unique username for the new account")
+            new_email = st.text_input("Email Address*", help="User's email address")
+            new_password = st.text_input("Password*", type="password", help="Initial password (user can change later)")
+            confirm_new_password = st.text_input("Confirm Password*", type="password", help="Re-enter the password")
+            new_role = st.selectbox("Role*", ["individual", "team_owner", "admin"], 
+                                  format_func=lambda x: {
+                                      "individual": "Individual Athlete",
+                                      "team_owner": "Team Owner/Coach", 
+                                      "admin": "Administrator"
+                                  }[x])
+            new_team = st.text_input("Team/Academy", help="Optional team or academy affiliation")
+            
+            create_user_submitted = st.form_submit_button("🆕 Create User", type="primary")
+            
+            if create_user_submitted:
+                if not all([new_username, new_email, new_password, confirm_new_password]):
+                    st.error("❌ Please fill in all required fields")
+                elif new_password != confirm_new_password:
+                    st.error("❌ Passwords don't match")
+                elif len(new_password) < 6:
+                    st.error("❌ Password must be at least 6 characters long")
+                else:
+                    success, message = user_manager.create_user(
+                        username=new_username,
+                        email=new_email,
+                        password=new_password,
+                        role=new_role,
+                        team=new_team,
+                        created_by=st.session_state.current_user
+                    )
+                    if success:
+                        st.success(f"✅ {message}")
+                        st.info(f"🎉 User '{new_username}' created successfully! They can now login with their credentials.")
+                    else:
+                        st.error(f"❌ {message}")
 
 elif st.session_state.page_mode == "member_info":
     # Show back to home button

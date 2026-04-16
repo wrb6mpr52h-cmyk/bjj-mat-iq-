@@ -3,28 +3,32 @@
     "Administrator": {
       "username": "Administrator",
       "email": "bmgomez2355@gmail.com",
-      "password_hash": "$2b$12$q/JSPW7PsWWkdUpJy5mzSOAbfXare7ZE1LKJwKZuejdPAKLzvB8uC",
+      "password_hash": "$2b$12$Cv4QSvjyqSlxcGODtqGDde0elcxpr9ADNEBoDcagw/euy0QaQXAt2",
       "role": "admin",
       "team": "Administrator",
       "created_at": "2026-04-11T11:18:21.830726",
       "created_by": "",
-      "last_login": "2026-04-11T11:18:33.658432",
+      "last_login": "2026-04-15T20:12:27.498897",
       "active": true,
       "owned_teams": [],
-      "owned_athletes": []
+      "owned_athletes": [],
+      "password_reset_by": "System Reset",
+      "password_reset_at": "2026-04-15T19:44:46.137854"
     },
     "MSantone": {
       "username": "MSantone",
-      "email": "na",
-      "password_hash": "$2b$12$dDpZ/LvCs0NCuu4zarn2nOxd0oXc1sX1BI4yXvFoDG1J5kRZDBoRy",
+      "email": "milosantone@email.com",
+      "password_hash": "$2b$12$14AX1m97RJVoZC8VrZD5T.Mbp0t5grmym6isuYD2xMr/427QNRq7m",
       "role": "individual",
       "team": "Gracie United Ascension",
-      "created_at": "2026-04-11T11:22:11.278461",
-      "created_by": "",
-      "last_login": "2026-04-15T19:12:51.689579",
+      "created_at": "2026-04-15T20:10:00.000000",
+      "created_by": "Administrator",
+      "last_login": "2026-04-15T20:15:07.942559",
       "active": true,
       "owned_teams": [],
-      "owned_athletes": []
+      "owned_athletes": [],
+      "password_reset_by": "Administrator",
+      "password_reset_at": "2026-04-15T20:13:25.687221"
     }
   },
   "created_at": "2026-04-11T11:12:08.809488",
