@@ -352,6 +352,39 @@ class UserManager:
             
         except Exception as e:
             return False, f"Error resetting password: {str(e)}"
+    
+    def self_reset_password(self, username: str, email: str, new_password: str) -> Tuple[bool, str]:
+        """Self-service password reset with email verification.""" 
+        users_data = self._load_users()
+        
+        if username not in users_data["users"]:
+            return False, "Username not found"
+        
+        user_data = users_data["users"][username]
+        
+        # Check if user is active
+        if not user_data.get("active", True):
+            return False, "Account is deactivated. Please contact an administrator."
+        
+        # Verify email matches
+        if user_data.get("email", "").lower() != email.lower():
+            return False, "Email address does not match our records"
+        
+        try:
+            # Hash the new password
+            new_hash = self._hash_password(new_password)
+            
+            # Update user data
+            users_data["users"][username]["password_hash"] = new_hash
+            users_data["users"][username]["password_reset_by"] = "Self-Reset"
+            users_data["users"][username]["password_reset_at"] = datetime.now().isoformat()
+            users_data["users"][username]["last_updated"] = datetime.now().isoformat()
+            
+            self._save_users(users_data)
+            return True, "Password reset successfully"
+            
+        except Exception as e:
+            return False, f"Error resetting password: {str(e)}"
 
 def init_session_state():
     """Initialize session state for authentication."""
