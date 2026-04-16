@@ -803,6 +803,210 @@ class AthleteManager:
         # Sort by date (newest first) then by review_id
         reviews.sort(key=lambda x: (x.get("date", ""), x.get("review_id", "")), reverse=True)
         return reviews
+    
+    def _require_admin(self):
+        """Ensure the current user has admin access."""
+        if self.user_role != "admin":
+            raise PermissionError("Admin access required")
+    
+    def _find_review_path(self, review_id: str) -> Optional[str]:
+        """Find review file path across accessible directories."""
+        for review_dir in self._get_review_dirs():
+            review_path = os.path.join(review_dir, f"{review_id}.json")
+            if os.path.exists(review_path):
+                return review_path
+        return None
+    
+    def _calculate_average_rating(self, review_data: Dict) -> Optional[float]:
+        """Calculate average rating from assessment ratings."""
+        assessments = review_data.get("assessments", {})
+        ratings = []
+        for area_data in assessments.values():
+            rating = area_data.get("rating")
+            if isinstance(rating, (int, float)):
+                ratings.append(float(rating))
+        
+        if not ratings:
+            return None
+        return round(sum(ratings) / len(ratings), 1)
+    
+    def _build_admin_review_summary(self, review_id: str, review_data: Dict, review_path: str) -> Dict:
+        """Build admin summary fields for review management."""
+        metadata = review_data.get("metadata", {})
+        match_info = review_data.get("match_info", {})
+        fighter_a = match_info.get("fighter_a", "").strip()
+        fighter_b = match_info.get("fighter_b", "").strip()
+        if fighter_a and fighter_b:
+            subject = f"{fighter_a} vs {fighter_b}"
+        else:
+            subject = fighter_a or fighter_b or "Unknown"
+        
+        return {
+            "id": review_id,
+            "review_id": review_id,
+            "created_at": metadata.get("reviewed_at", ""),
+            "updated_at": metadata.get("last_updated", ""),
+            "reviewer": metadata.get("reviewer", ""),
+            "user": metadata.get("owner", review_data.get("owner", "")),
+            "subject": subject,
+            "rating": self._calculate_average_rating(review_data),
+            "text": review_data.get("coach_notes", ""),
+            "status": metadata.get("status", ""),
+            "visibility": metadata.get("visibility", ""),
+            "review_path": review_path
+        }
+    
+    def admin_list_reviews(self, page: int = 1, page_size: int = 20, filters: Optional[Dict] = None) -> Dict:
+        """Admin list endpoint for all reviews with filtering and pagination."""
+        self._require_admin()
+        filters = filters or {}
+        
+        reviews = []
+        seen_review_ids = set()
+        
+        for review_dir in self._get_review_dirs():
+            if not os.path.exists(review_dir):
+                continue
+            
+            for filename in os.listdir(review_dir):
+                if not filename.endswith(".json"):
+                    continue
+                
+                review_id = filename[:-5]
+                if review_id in seen_review_ids:
+                    continue
+                
+                review_path = os.path.join(review_dir, filename)
+                try:
+                    with open(review_path, "r") as f:
+                        review_data = json.load(f)
+                    reviews.append(self._build_admin_review_summary(review_id, review_data, review_path))
+                    seen_review_ids.add(review_id)
+                except (json.JSONDecodeError, IOError):
+                    continue
+        
+        search = str(filters.get("search", "")).strip().lower()
+        user_filter = str(filters.get("user", "")).strip().lower()
+        rating_min = filters.get("rating_min")
+        rating_max = filters.get("rating_max")
+        start_date = str(filters.get("start_date", "")).strip()
+        end_date = str(filters.get("end_date", "")).strip()
+        
+        def _matches(review: Dict) -> bool:
+            if search:
+                haystack = " ".join([
+                    str(review.get("id", "")),
+                    str(review.get("subject", "")),
+                    str(review.get("reviewer", "")),
+                    str(review.get("user", "")),
+                    str(review.get("text", "")),
+                ]).lower()
+                if search not in haystack:
+                    return False
+            
+            if user_filter and user_filter not in str(review.get("user", "")).lower():
+                return False
+            
+            rating = review.get("rating")
+            if rating_min is not None and rating is not None and rating < float(rating_min):
+                return False
+            if rating_max is not None and rating is not None and rating > float(rating_max):
+                return False
+            
+            created_at = str(review.get("created_at", ""))
+            created_date = created_at[:10] if created_at else ""
+            if start_date and created_date and created_date < start_date:
+                return False
+            if end_date and created_date and created_date > end_date:
+                return False
+            
+            return True
+        
+        filtered_reviews = [r for r in reviews if _matches(r)]
+        filtered_reviews.sort(key=lambda x: (x.get("created_at", ""), x.get("id", "")), reverse=True)
+        
+        page = max(1, int(page))
+        page_size = max(1, int(page_size))
+        total = len(filtered_reviews)
+        start_idx = (page - 1) * page_size
+        end_idx = start_idx + page_size
+        
+        return {
+            "items": filtered_reviews[start_idx:end_idx],
+            "total": total,
+            "page": page,
+            "page_size": page_size
+        }
+    
+    def admin_get_review(self, review_id: str) -> Optional[Dict]:
+        """Admin get endpoint for a single review."""
+        self._require_admin()
+        review_path = self._find_review_path(review_id)
+        if not review_path:
+            return None
+        
+        try:
+            with open(review_path, "r") as f:
+                review_data = json.load(f)
+            review_data["_review_path"] = review_path
+            review_data["_review_id"] = review_id
+            return review_data
+        except (json.JSONDecodeError, IOError):
+            return None
+    
+    def admin_update_review(self, review_id: str, updates: Dict) -> bool:
+        """Admin update endpoint for review text and ratings."""
+        self._require_admin()
+        review_path = self._find_review_path(review_id)
+        if not review_path:
+            return False
+        
+        try:
+            with open(review_path, "r") as f:
+                review_data = json.load(f)
+            
+            coach_notes = updates.get("coach_notes")
+            if coach_notes is not None:
+                if not isinstance(coach_notes, str):
+                    raise ValueError("Review text must be a string")
+                if len(coach_notes) > 10000:
+                    raise ValueError("Review text is too long")
+                review_data["coach_notes"] = coach_notes
+            
+            assessments_updates = updates.get("assessments", {})
+            if assessments_updates:
+                current_assessments = review_data.get("assessments", {})
+                for area, rating in assessments_updates.items():
+                    if area not in current_assessments:
+                        raise ValueError(f"Unknown assessment area: {area}")
+                    if not isinstance(rating, (int, float)) or rating < 1 or rating > 5:
+                        raise ValueError(f"Invalid rating for {area}: must be a number between 1 and 5")
+                    if isinstance(rating, float) and not rating.is_integer():
+                        raise ValueError(f"Invalid rating for {area}: must be a whole number between 1 and 5")
+                    current_assessments[area]["rating"] = int(rating)
+            
+            review_data.setdefault("metadata", {})
+            review_data["metadata"]["last_updated"] = datetime.now().isoformat()
+            review_data["metadata"]["last_updated_by"] = self.current_user
+            
+            with open(review_path, "w") as f:
+                json.dump(review_data, f, indent=2)
+            return True
+        except (json.JSONDecodeError, IOError):
+            return False
+    
+    def admin_delete_review(self, review_id: str) -> bool:
+        """Admin delete endpoint for review removal."""
+        self._require_admin()
+        review_path = self._find_review_path(review_id)
+        if not review_path:
+            return False
+        
+        try:
+            os.remove(review_path)
+            return True
+        except OSError:
+            return False
 
     def load_review_for_editing(self, review_id: str) -> Optional[Dict]:
         """Load a complete review for editing in the app."""
