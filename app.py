@@ -56,6 +56,16 @@ st.set_page_config(
 # Initialize user manager
 user_manager = UserManager()
 
+# Debug: Check if users file exists
+users_file_path = os.path.join("users", "users.json")
+if not os.path.exists(users_file_path):
+    st.error(f"❌ Users file not found at: {users_file_path}")
+    st.error(f"Current working directory: {os.getcwd()}")
+    st.error(f"Files in current directory: {os.listdir('.')}")
+    if os.path.exists("users"):
+        st.error(f"Files in users directory: {os.listdir('users')}")
+    st.stop()
+
 # Authentication check
 if "authenticated" not in st.session_state:
     st.session_state.authenticated = False
@@ -216,18 +226,28 @@ with col_user:
                 st.session_state.user_role = None
                 st.rerun()
 
-# Initialize athlete manager with current user context
-athlete_manager = AthleteManager(
-    current_user=st.session_state.current_user,
-    user_role=st.session_state.user_role
-)
-
 # Initialize session state
 if "events" not in st.session_state:
     st.session_state.events = []
 if "assessments" not in st.session_state:
     st.session_state.assessments = {}
 if "tactical_tags" not in st.session_state:
+    st.session_state.tactical_tags = {}
+
+def get_athlete_manager():
+    """Get athlete manager with current user context."""
+    return AthleteManager(
+        current_user=st.session_state.get('current_user'),
+        user_role=st.session_state.get('user_role', 'individual')
+    )
+
+# Initialize global athlete manager for backward compatibility 
+athlete_manager = get_athlete_manager()
+
+# Update athlete manager if user context has changed
+if (athlete_manager.current_user != st.session_state.get('current_user') or 
+    athlete_manager.user_role != st.session_state.get('user_role')):
+    athlete_manager = get_athlete_manager()
     st.session_state.tactical_tags = []
 if "editing_event" not in st.session_state:
     st.session_state.editing_event = None
@@ -273,6 +293,7 @@ if st.session_state.page_mode == "landing":
 
     with col_athlete1:
         # Search existing athletes
+        athlete_manager = get_athlete_manager()
         existing_athletes = athlete_manager.list_all_athletes()
         athlete_options = ["Select Athlete"] + [f"{a['name']}" for a in existing_athletes] + ["Create New Athlete"]
 

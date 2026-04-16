@@ -23,10 +23,12 @@
       "team": "Gracie United Ascension",
       "created_at": "2026-04-15T20:10:00.000000",
       "created_by": "Administrator",
-      "last_login": "2026-04-15T21:12:49.302184",
+      "last_login": "2026-04-15T22:05:26.962479",
       "active": true,
       "owned_teams": [],
-      "owned_athletes": ["milo_santone_gracie_uni"],
+      "owned_athletes": [
+        "milo_santone_gracie_uni"
+      ],
       "password_reset_by": "Self-Reset",
       "password_reset_at": "2026-04-15T20:39:40.643227",
       "last_updated": "2026-04-15T20:39:40.643248"
