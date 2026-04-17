@@ -292,12 +292,12 @@ if st.session_state.page_mode == "landing":
     col_athlete1, col_athlete2 = st.columns([2, 1])
 
     with col_athlete1:
-        # Search existing athletes
-        athlete_manager = get_athlete_manager()
-        existing_athletes = athlete_manager.list_all_athletes()
-athlete_options = ["Select Athlete"] + [f"{a['name']}" for a in existing_athletes if isinstance(a, dict) and 'name' in a] + ["Create New Athlete"]
+    # Search existing athletes
+    athlete_manager = get_athlete_manager()
+    existing_athletes = athlete_manager.list_all_athletes()
+athlete_options = ["Select Athlete"] ...
+selected_option = st.selectbox(... )
 
-        selected_option = st.selectbox("Select or Create Athlete Profile", athlete_options, key="home_athlete_selection")
 
         if selected_option == "Select Athlete":
             st.info("👆 Please select an existing athlete from the dropdown above or choose 'Create New Athlete' to add a new profile.")
