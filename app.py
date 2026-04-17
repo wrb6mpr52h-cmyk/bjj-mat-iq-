@@ -295,7 +295,7 @@ if st.session_state.page_mode == "landing":
         # Search existing athletes
         athlete_manager = get_athlete_manager()
         existing_athletes = athlete_manager.list_all_athletes()
-        athlete_options = ["Select Athlete"] + [f"{a['name']}" for a in existing_athletes] + ["Create New Athlete"]
+athlete_options = ["Select Athlete"] + [f"{a['name']}" for a in existing_athletes if isinstance(a, dict) and 'name' in a] + ["Create New Athlete"]
 
         selected_option = st.selectbox("Select or Create Athlete Profile", athlete_options, key="home_athlete_selection")
 
