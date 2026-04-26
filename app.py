@@ -315,7 +315,15 @@ if st.session_state.page_mode == "landing":
         athlete_manager = get_athlete_manager()
         existing_athletes = athlete_manager.list_all_athletes()
         # Only include athletes with a 'name' key
-        valid_athletes = [a for a in existing_athletes if 'name' in a and a['name'] and 'athlete_id' in a]
+        # Only show athletes whose file exists and matches their athlete_id
+        valid_athletes = []
+        for a in existing_athletes:
+            if 'name' in a and a['name'] and 'athlete_id' in a:
+                for athlete_dir in athlete_manager._get_athlete_dirs():
+                    profile_path = os.path.join(athlete_dir, f"{a['athlete_id']}.json")
+                    if os.path.exists(profile_path):
+                        valid_athletes.append(a)
+                        break
         missing_name_count = len(existing_athletes) - len(valid_athletes)
         # Use both name and athlete_id for unique selection
         athlete_options = ["Select Athlete", "Create New Athlete"] + [f"{a['name']} [{a['athlete_id']}]" for a in valid_athletes]
