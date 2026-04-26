@@ -1746,34 +1746,36 @@ elif st.session_state.page_mode == "member_info":
     user_athletes = athlete_manager.list_all_athletes()
     if user_athletes:
         for athlete in user_athletes:
-            if athlete.get("owner") != current_user:
-                continue  # Only show user's own athletes
+            # Skip malformed athlete profiles without athlete_id
+            athlete_id = athlete.get("athlete_id")
+            if not athlete_id or athlete.get("owner") != current_user:
+                continue  # Only show user's own athletes with valid ID
             col_a1, col_a2, col_a3 = st.columns([3,1,1])
             with col_a1:
                 st.write(f"**{athlete.get('name','')}**  ")
                 st.write(f"Team: {athlete.get('team','N/A')}")
             with col_a2:
-                if st.button(f"✏️ Edit", key=f"edit_{athlete['athlete_id']}_memberinfo", type="secondary"):
-                    st.session_state[f'edit_athlete_{athlete["athlete_id"]}'] = True
+                if st.button(f"✏️ Edit", key=f"edit_{athlete_id}_memberinfo", type="secondary"):
+                    st.session_state[f'edit_athlete_{athlete_id}'] = True
             with col_a3:
-                if st.button(f"❌ Delete", key=f"delete_{athlete['athlete_id']}_memberinfo", type="secondary"):
+                if st.button(f"❌ Delete", key=f"delete_{athlete_id}_memberinfo", type="secondary"):
                     athlete_dir = athlete_manager._get_user_athlete_dir()
-                    profile_path = os.path.join(athlete_dir, f"{athlete['athlete_id']}.json")
+                    profile_path = os.path.join(athlete_dir, f"{athlete_id}.json")
                     try:
                         if os.path.exists(profile_path):
                             os.remove(profile_path)
                             st.success(f"Athlete '{athlete.get('name','')}' removed.")
-                            st.session_state.pop(f'edit_athlete_{athlete["athlete_id"]}', None)
+                            st.session_state.pop(f'edit_athlete_{athlete_id}', None)
                             st.rerun()
                         else:
                             st.error("Athlete profile file not found.")
                     except Exception as e:
                         st.error(f"Error removing athlete: {str(e)}")
             # Inline edit form
-            if st.session_state.get(f'edit_athlete_{athlete["athlete_id"]}', False):
+            if st.session_state.get(f'edit_athlete_{athlete_id}', False):
                 st.markdown("---")
                 st.markdown(f"#### ✏️ Edit Athlete: {athlete.get('name','')}")
-                with st.form(f"edit_athlete_form_{athlete['athlete_id']}"):
+                with st.form(f"edit_athlete_form_{athlete_id}"):
                     edit_name = st.text_input("Athlete Name*", value=athlete['name'])
                     edit_team = st.text_input("Team/Academy", value=athlete.get('team', ''))
                     current_belt = athlete.get('current_belt', BELT_LEVELS[0])
@@ -1801,14 +1803,14 @@ elif st.session_state.page_mode == "member_info":
                                     weight_class=edit_weight
                                 )
                                 st.success(f"✅ Updated athlete profile: **{edit_name}**")
-                                st.session_state.pop(f'edit_athlete_{athlete["athlete_id"]}', None)
+                                st.session_state.pop(f'edit_athlete_{athlete_id}', None)
                                 st.rerun()
                             except Exception as e:
                                 st.error(f"❌ Error updating profile: {str(e)}")
                         else:
                             st.error("❌ Athlete name is required")
                     if cancel_submitted:
-                        st.session_state.pop(f'edit_athlete_{athlete["athlete_id"]}', None)
+                        st.session_state.pop(f'edit_athlete_{athlete_id}', None)
                         st.rerun()
     else:
         st.info("No athletes registered yet. Register athletes from the Home page.")
