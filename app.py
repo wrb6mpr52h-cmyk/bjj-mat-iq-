@@ -1318,9 +1318,9 @@ if st.session_state.page_mode == "landing":
                 st.write(f"**Total Reviews:** {len(profile.get('reviews', []))}")
                 st.write(f"**Total Assessments:** {len(profile.get('assessment_reports', []))}")
                 st.write(f"**Total Points:** {profile.get('total_points', 0)}")
-                            st.session_state.editing_review_id = review_id
-                            st.success(f"✅ Loaded match for editing. Going to match review...")
-                            st.rerun()
+                st.session_state.editing_review_id = review_id
+                st.success(f"✅ Loaded match for editing. Going to match review...")
+                st.rerun()
                         
                         # Delete match button  
                         if st.button("🗑️ Delete", key=f"delete_match_{review_id}_{i}", help="Delete this match"):
