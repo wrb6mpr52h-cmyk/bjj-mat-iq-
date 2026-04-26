@@ -407,8 +407,10 @@ if st.session_state.page_mode == "landing":
                 st.success(f"✅ Selected: {selected_athlete['name']}")
                 st.info("🏷️ This athlete will be used as Fighter A in match reviews with profile details auto-populated")
 
-                # Show athlete info
-                matches_count = len(selected_athlete.get("match_history", []))
+
+                # Always fetch the latest athlete profile from disk
+                latest_profile = athlete_manager.get_athlete_profile(selected_athlete["athlete_id"])
+                matches_count = len(latest_profile.get("match_history", [])) if latest_profile else 0
                 st.info(f"📈 Profile has {matches_count} matches")
 
     with col_athlete2:
