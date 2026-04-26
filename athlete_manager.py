@@ -855,41 +855,12 @@ class AthleteManager:
     def get_user_statistics(self) -> Dict:
         """Get statistics for the current user."""
         athletes = self.list_all_athletes()
-        
         stats = {
             "total_athletes": len(athletes),
-        missing_athlete_id_files = []
-        for athlete_dir in self._get_athlete_dirs():
-            if not os.path.exists(athlete_dir):
-                continue
-            for filename in os.listdir(athlete_dir):
-                if filename.endswith('.json'):
-                    try:
-                        profile_path = os.path.join(athlete_dir, filename)
-                        with open(profile_path, 'r') as f:
-                            profile = json.load(f)
-                        # Skip and warn if missing 'athlete_id'
-                        if 'athlete_id' not in profile:
-                            missing_athlete_id_files.append(profile_path)
-                            continue
-                        athlete_id = profile['athlete_id']
-                        # Avoid duplicates
-                        if athlete_id in seen_athlete_ids:
-                            continue
-                        # Check access permissions
-                        if self._can_access_athlete(profile):
-                            athletes.append(profile)
-                            seen_athlete_ids.add(athlete_id)
-                    except (json.JSONDecodeError, IOError):
-                        continue  # Skip corrupted files
-        if missing_athlete_id_files:
-            import streamlit as st
-            st.warning(f"{len(missing_athlete_id_files)} athlete file(s) missing 'athlete_id' and were skipped: {missing_athlete_id_files}")
-        return sorted(athletes, key=lambda x: x.get("name", ""))
-            key=lambda x: x["date"], reverse=True
-        )
-        stats["recent_activity"] = stats["recent_activity"][:10]  # Keep only 10 most recent
-        
+            # Add more statistics as needed
+        }
+        # Example: add recent activity if available
+        # stats["recent_activity"] = ...
         return stats
     
     def delete_match_review(self, athlete_id: str, review_id: str) -> bool:
