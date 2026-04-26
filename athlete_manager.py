@@ -242,7 +242,11 @@ class AthleteManager:
                 json.dump(profile, f, indent=2)
         except Exception as e:
             print(f"[ERROR] Failed to save athlete profile: {e}")
-        
+            try:
+                import streamlit as st
+                st.error(f"❌ Failed to save athlete profile: {e}")
+            except Exception:
+                pass
         return athlete_id
     
     def link_match_to_athlete(self, athlete_id: str, review_id: str):
