@@ -423,8 +423,9 @@ if st.session_state.page_mode == "landing":
                 st.write(f"**Weight Class:** {profile.get('current_weight_class', 'N/A')}")
                 st.write(f"**Total Matches:** {len(profile.get('match_history', []))}")
 
-                # Edit and Clear buttons
-                col_edit, col_clear = st.columns(2)
+
+                # Edit, Clear, and Remove buttons
+                col_edit, col_clear, col_remove = st.columns(3)
                 with col_edit:
                     if st.button("✏️ Edit Profile", key="home_edit_athlete", type="secondary"):
                         st.session_state.editing_athlete = True
@@ -440,6 +441,28 @@ if st.session_state.page_mode == "landing":
                             if key in st.session_state:
                                 del st.session_state[key]
                         st.rerun()
+
+                with col_remove:
+                    if st.button("❌ Remove Athlete", key="home_remove_athlete", type="secondary"):
+                        athlete_id = profile.get('athlete_id')
+                        if athlete_id:
+                            athlete_dir = athlete_manager._get_user_athlete_dir()
+                            profile_path = os.path.join(athlete_dir, f"{athlete_id}.json")
+                            try:
+                                if os.path.exists(profile_path):
+                                    os.remove(profile_path)
+                                    st.success(f"Athlete '{profile.get('name','')}' removed from your account.")
+                                    st.session_state.current_athlete_id = None
+                                    for key in ['registered_athlete_name', 'registered_athlete_team', 
+                                                'registered_athlete_belt', 'registered_athlete_age_division', 
+                                                'registered_athlete_weight_class']:
+                                        if key in st.session_state:
+                                            del st.session_state[key]
+                                    st.rerun()
+                                else:
+                                    st.error("Athlete profile file not found.")
+                            except Exception as e:
+                                st.error(f"Error removing athlete: {str(e)}")
 
                 # Edit Profile Form
                 if st.session_state.get('editing_athlete', False):
@@ -926,6 +949,7 @@ elif st.session_state.page_mode == "progress_tracking":
             # Display all items
             for i, item in enumerate(all_items):
                 if item["type"] == "match":
+                    review_id = item["id"]
                     def on_edit_match(review_id, athlete_id=item['athlete_id'], athlete_name=item['athlete_name']):
                         st.session_state.current_athlete_id = athlete_id
                         st.session_state.registered_athlete_name = athlete_name
@@ -934,6 +958,10 @@ elif st.session_state.page_mode == "progress_tracking":
                         st.session_state.editing_review_id = review_id
                         st.success(f"✅ Loading match for editing...")
                         st.rerun()
+                    # Display clickable REV link
+                    st.markdown(f"**[REV-{review_id.split('-')[-1]}](#) — click to review**", unsafe_allow_html=True)
+                    if st.button(f"View REV-{review_id.split('-')[-1]}", key=f"view_rev_{review_id}_{i}"):
+                        on_edit_match(review_id)
                     render_match_card(
                         item["data"],
                         athlete_name=item["athlete_name"],
