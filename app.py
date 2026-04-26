@@ -293,7 +293,9 @@ if st.session_state.page_mode == "landing":
 
     col1, col2, col3, col4 = st.columns(4)
 
+
     with col1:
+        pass  # No button in this column currently
 
     # (Removed duplicate action buttons here; only top-of-page versions remain)
 
