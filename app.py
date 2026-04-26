@@ -405,6 +405,7 @@ if st.session_state.page_mode == "landing":
                 st.session_state.registered_athlete_age_division = selected_athlete.get('current_age_division', '')
                 st.session_state.registered_athlete_weight_class = selected_athlete.get('current_weight_class', '')
                 st.success(f"✅ Selected: {selected_athlete['name']}")
+
                 st.info("🏷️ This athlete will be used as Fighter A in match reviews with profile details auto-populated")
 
 
