@@ -23,9 +23,7 @@ try:
 except ImportError as e:
     import sys
     import os
-    print(f"Config import error: {e}")
-    print(f"Current directory: {os.getcwd()}")
-    print(f"Files in current dir: {os.listdir('.')}")
+    # ...existing code...
     # Fallback - define minimal constants if config.py is missing
     POSITIONS = {}
     ACTIONS = {}
@@ -318,19 +316,14 @@ if st.session_state.page_mode == "landing":
         # Only include athletes with a 'name' key
         # Only show athletes whose file exists and matches their athlete_id
         valid_athletes = []
-        debug_athlete_candidates = []
         for a in existing_athletes:
             if 'name' in a and a['name'] and 'athlete_id' in a:
                 for athlete_dir in athlete_manager._get_athlete_dirs():
                     profile_path = os.path.join(athlete_dir, f"{a['athlete_id']}.json")
                     if os.path.exists(profile_path):
                         valid_athletes.append(a)
-                        debug_athlete_candidates.append((a['athlete_id'], profile_path))
                         break
-        st.warning(f"[DEBUG] Current user: {athlete_manager.current_user}, role: {athlete_manager.user_role}")
-        st.warning(f"[DEBUG] Valid athletes: {[(a['name'], a['athlete_id']) for a in valid_athletes]}")
-        st.warning(f"[DEBUG] Athlete file candidates: {debug_athlete_candidates}")
-        missing_name_count = len(existing_athletes) - len(valid_athletes)
+        # ...existing code...
         # Use both name and athlete_id for unique selection
         athlete_options = ["Select Athlete", "Create New Athlete"] + [f"{a['name']} [{a['athlete_id']}]" for a in valid_athletes]
         selected_option = st.selectbox("Choose an athlete", athlete_options, index=0)
@@ -370,8 +363,7 @@ if st.session_state.page_mode == "landing":
 
                 if create_submitted:
                     if new_name.strip():
-                        # Debug: Show current user before saving
-                        st.warning(f"[DEBUG] athlete_manager.current_user: {athlete_manager.current_user}")
+                        # ...existing code...
                         # Create the athlete profile
                         athlete_id = athlete_manager.create_or_update_athlete(
                             name=new_name.strip(),
@@ -401,9 +393,6 @@ if st.session_state.page_mode == "landing":
             if selected_athlete:
                 # Always fetch the latest athlete profile from disk for all info and session state
                 athlete_id_debug = selected_athlete["athlete_id"]
-                search_dirs_debug = athlete_manager._get_athlete_dirs()
-                st.warning(f"[DEBUG] Looking for athlete_id: {athlete_id_debug}")
-                st.warning(f"[DEBUG] Athlete search paths: {search_dirs_debug}")
                 latest_profile = athlete_manager.get_athlete_profile(athlete_id_debug)
                 if latest_profile:
                     st.session_state.current_athlete_id = latest_profile["athlete_id"]
