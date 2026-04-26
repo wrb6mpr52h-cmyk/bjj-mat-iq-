@@ -1088,7 +1088,14 @@ elif st.session_state.page_mode == "progress_tracking":
                 # Get matches for this athlete
                 try:
                     matches = athlete_manager.get_athlete_matches(athlete_id)
-                    for match in matches:
+                    # Sort matches by match_number if available
+                    def match_number_key(match):
+                        try:
+                            return int(match.get("match_info", {}).get("match_number", 0))
+                        except Exception:
+                            return 0
+                    matches_sorted = sorted(matches, key=match_number_key)
+                    for match in matches_sorted:
                         metadata = match.get("metadata", {})
                         all_items.append({
                             "type": "match",
