@@ -375,7 +375,7 @@ if st.session_state.page_mode == "landing":
             # Extract athlete from selection
             selected_athlete = None
             for athlete in existing_athletes:
-                if athlete['name'] == selected_option:
+                if 'name' in athlete and athlete['name'] == selected_option:
                     selected_athlete = athlete
                     break
 
