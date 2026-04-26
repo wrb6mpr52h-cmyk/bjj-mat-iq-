@@ -191,63 +191,24 @@ class AthleteManager:
     
     def create_or_update_athlete(self, name: str, team: str = "", belt: str = "", 
                                 age_division: str = "", weight_class: str = "", notes: str = "") -> str:
-        """Create or update athlete profile in user's directory."""
-        athlete_id = self.create_athlete_id(name, team)
-        
-        # Use user-specific directory
-        athlete_dir = self._get_user_athlete_dir()
-        profile_path = os.path.join(athlete_dir, f"{athlete_id}.json")
-        
-        # Load existing profile or create new
-        if os.path.exists(profile_path):
-            with open(profile_path, 'r') as f:
-                profile = json.load(f)
+        """Create or update athlete profile in Supabase."""
+        # Import the Supabase helper
+        from supabase_client import create_athlete_supabase
+        # Use current_user as coach_id
+        coach_id = self.current_user
+        # Call the Supabase insert function
+        result = create_athlete_supabase(
+            coach_id=coach_id,
+            name=name,
+            belt=belt,
+            weight_class=weight_class,
+            notes=notes
+        )
+        # Optionally handle result and return the new athlete's id
+        if result and result.data and len(result.data) > 0:
+            return result.data[0].get("id")
         else:
-            profile = {
-                "athlete_id": athlete_id,
-                "name": name,
-                "team": team,
-                "owner": self.current_user,  # Track ownership
-                "created_at": datetime.now().isoformat(),
-                "match_history": [],
-                "belt_progression": [],
-                "notes": ""
-            }
-        
-        # Update profile data
-        profile["name"] = name
-        profile["team"] = team
-        if belt:
-            profile["current_belt"] = belt
-            # Track belt progression
-            if not profile.get("belt_progression") or profile["belt_progression"][-1]["belt"] != belt:
-                profile.setdefault("belt_progression", []).append({
-                    "belt": belt,
-                    "date": datetime.now().isoformat()[:10]
-                })
-        if age_division:
-            profile["current_age_division"] = age_division
-        if weight_class:
-            profile["current_weight_class"] = weight_class
-        if notes:
-            profile["notes"] = notes
-        
-        profile["last_updated"] = datetime.now().isoformat()
-        
-        # Debug: Show where the profile is being saved
-        print(f"[DEBUG] Saving athlete profile to: {profile_path}")
-        # Save profile with error handling
-        try:
-            with open(profile_path, 'w') as f:
-                json.dump(profile, f, indent=2)
-        except Exception as e:
-            print(f"[ERROR] Failed to save athlete profile: {e}")
-            try:
-                import streamlit as st
-                st.error(f"❌ Failed to save athlete profile: {e}")
-            except Exception:
-                pass
-        return athlete_id
+            return None
     
     def link_match_to_athlete(self, athlete_id: str, review_id: str):
         """Link a match review to an athlete's history."""
