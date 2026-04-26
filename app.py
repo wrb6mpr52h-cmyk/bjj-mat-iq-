@@ -1363,16 +1363,16 @@ elif analysis_mode == "📋 All Reviews Management":
     st.subheader("📋 All Reviews Management")
     all_reviews = athlete_manager.list_all_reviews()
     if not all_reviews:
-            st.warning("⚠️ No match reviews found.")
-            st.info("💡 Complete and save at least one match review to see it here.")
-        else:
-            st.caption(f"Total reviews: {len(all_reviews)}")
-            for i, review in enumerate(all_reviews[:20]):
-                def on_edit_match(review_id):
-                    st.session_state.page_mode = "match_review"
-                    st.session_state.editing_existing_match = True
-                    st.session_state.editing_review_id = review_id
-                    st.success("Loading for edit...")
+        st.warning("⚠️ No match reviews found.")
+        st.info("💡 Complete and save at least one match review to see it here.")
+    else:
+        st.caption(f"Total reviews: {len(all_reviews)}")
+        for i, review in enumerate(all_reviews[:20]):
+            def on_edit_match(review_id):
+                st.session_state.page_mode = "match_review"
+                st.session_state.editing_existing_match = True
+                st.session_state.editing_review_id = review_id
+                st.success("Loading for edit...")
                     st.rerun()
                 render_match_card(
                     review,
