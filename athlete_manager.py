@@ -236,9 +236,12 @@ class AthleteManager:
         
         # Debug: Show where the profile is being saved
         print(f"[DEBUG] Saving athlete profile to: {profile_path}")
-        # Save profile
-        with open(profile_path, 'w') as f:
-            json.dump(profile, f, indent=2)
+        # Save profile with error handling
+        try:
+            with open(profile_path, 'w') as f:
+                json.dump(profile, f, indent=2)
+        except Exception as e:
+            print(f"[ERROR] Failed to save athlete profile: {e}")
         
         return athlete_id
     
