@@ -234,6 +234,8 @@ class AthleteManager:
         
         profile["last_updated"] = datetime.now().isoformat()
         
+        # Debug: Show where the profile is being saved
+        print(f"[DEBUG] Saving athlete profile to: {profile_path}")
         # Save profile
         with open(profile_path, 'w') as f:
             json.dump(profile, f, indent=2)
