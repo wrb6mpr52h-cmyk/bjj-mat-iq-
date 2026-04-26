@@ -1740,6 +1740,79 @@ elif st.session_state.page_mode == "member_info":
                 del st.session_state[key]
             st.rerun()
 
+    # --- List Registered Athletes ---
+    st.subheader("Your Registered Athletes")
+    athlete_manager = AthleteManager(base_dir="data", current_user=current_user, user_role=user_info.get('role', 'individual'))
+    user_athletes = athlete_manager.list_all_athletes()
+    if user_athletes:
+        for athlete in user_athletes:
+            if athlete.get("owner") != current_user:
+                continue  # Only show user's own athletes
+            col_a1, col_a2, col_a3 = st.columns([3,1,1])
+            with col_a1:
+                st.write(f"**{athlete.get('name','')}**  ")
+                st.write(f"Team: {athlete.get('team','N/A')}")
+            with col_a2:
+                if st.button(f"✏️ Edit", key=f"edit_{athlete['athlete_id']}_memberinfo", type="secondary"):
+                    st.session_state[f'edit_athlete_{athlete["athlete_id"]}'] = True
+            with col_a3:
+                if st.button(f"❌ Delete", key=f"delete_{athlete['athlete_id']}_memberinfo", type="secondary"):
+                    athlete_dir = athlete_manager._get_user_athlete_dir()
+                    profile_path = os.path.join(athlete_dir, f"{athlete['athlete_id']}.json")
+                    try:
+                        if os.path.exists(profile_path):
+                            os.remove(profile_path)
+                            st.success(f"Athlete '{athlete.get('name','')}' removed.")
+                            st.session_state.pop(f'edit_athlete_{athlete["athlete_id"]}', None)
+                            st.rerun()
+                        else:
+                            st.error("Athlete profile file not found.")
+                    except Exception as e:
+                        st.error(f"Error removing athlete: {str(e)}")
+            # Inline edit form
+            if st.session_state.get(f'edit_athlete_{athlete["athlete_id"]}', False):
+                st.markdown("---")
+                st.markdown(f"#### ✏️ Edit Athlete: {athlete.get('name','')}")
+                with st.form(f"edit_athlete_form_{athlete['athlete_id']}"):
+                    edit_name = st.text_input("Athlete Name*", value=athlete['name'])
+                    edit_team = st.text_input("Team/Academy", value=athlete.get('team', ''))
+                    current_belt = athlete.get('current_belt', BELT_LEVELS[0])
+                    belt_index = BELT_LEVELS.index(current_belt) if current_belt in BELT_LEVELS else 0
+                    edit_belt = st.selectbox("Belt Level*", BELT_LEVELS, index=belt_index)
+                    current_age = athlete.get('current_age_division', AGE_DIVISIONS[0])
+                    age_index = AGE_DIVISIONS.index(current_age) if current_age in AGE_DIVISIONS else 0
+                    edit_age_division = st.selectbox("Age Division", AGE_DIVISIONS, index=age_index)
+                    current_weight = athlete.get('current_weight_class', WEIGHT_CLASSES[0])
+                    weight_index = WEIGHT_CLASSES.index(current_weight) if current_weight in WEIGHT_CLASSES else 0
+                    edit_weight = st.selectbox("Weight Class", WEIGHT_CLASSES, index=weight_index)
+                    col_save, col_cancel = st.columns(2)
+                    with col_save:
+                        save_submitted = st.form_submit_button("💾 Save Changes", type="primary")
+                    with col_cancel:
+                        cancel_submitted = st.form_submit_button("❌ Cancel", type="secondary")
+                    if save_submitted:
+                        if edit_name.strip():
+                            try:
+                                new_athlete_id = athlete_manager.create_or_update_athlete(
+                                    name=edit_name.strip(),
+                                    team=edit_team.strip() if edit_team.strip() else "",
+                                    belt=edit_belt,
+                                    age_division=edit_age_division,
+                                    weight_class=edit_weight
+                                )
+                                st.success(f"✅ Updated athlete profile: **{edit_name}**")
+                                st.session_state.pop(f'edit_athlete_{athlete["athlete_id"]}', None)
+                                st.rerun()
+                            except Exception as e:
+                                st.error(f"❌ Error updating profile: {str(e)}")
+                        else:
+                            st.error("❌ Athlete name is required")
+                    if cancel_submitted:
+                        st.session_state.pop(f'edit_athlete_{athlete["athlete_id"]}', None)
+                        st.rerun()
+    else:
+        st.info("No athletes registered yet. Register athletes from the Home page.")
+
     st.stop()  # Stop here for member info page
 
 # If we reach here, we're in match_review mode
