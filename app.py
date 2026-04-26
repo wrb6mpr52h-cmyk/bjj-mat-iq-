@@ -10,6 +10,7 @@ import os
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
+from ui_components import render_match_card, render_assessment_card
 from datetime import datetime
 try:
     from config import (
@@ -631,24 +632,11 @@ elif st.session_state.page_mode == "progress_tracking":
         with col_stat1:
             st.metric("Your Athletes", user_stats["total_athletes"])
         with col_stat2:
-            st.metric("Your Reviews", user_stats["total_matches"])
+            st.metric("Your Reviews", user_stats.get("total_matches", 0))
         with col_stat3:
-            st.metric("Accessible Teams", user_stats["total_teams"])
+            st.metric("Accessible Teams", user_stats.get("total_teams", 0))
     except Exception as e:
-        # Debug information if statistics fail
         st.error(f"Unable to load statistics: {str(e)}")
-        st.info(f"🔍 Debug: Current user: {st.session_state.get('current_user', 'None')}")
-        st.info(f"🔍 Athlete manager user: {getattr(athlete_manager, 'current_user', 'None')}")
-        st.info(f"🔍 User role: {getattr(athlete_manager, 'user_role', 'None')}")
-        
-        # Try to manually load athlete data
-        try:
-            athletes = athlete_manager.list_all_athletes()
-            st.info(f"🔍 Found {len(athletes)} athletes")
-            if athletes:
-                st.write("🔍 Sample athlete:", athletes[0].get("name", "Unknown"))
-        except Exception as e2:
-            st.error(f"🔍 Error listing athletes: {str(e2)}")
 
     # Analysis Mode Selection
     st.subheader("📊 Analysis Mode")
@@ -730,286 +718,73 @@ elif st.session_state.page_mode == "progress_tracking":
                 # Display all items
                 for i, item in enumerate(all_items):
                     if item["type"] == "match":
-                        # Display match review (existing logic)
-                        match = item["data"]
-                        match_info = match.get("match_info", {})
-                        scores = match.get("scores", {})
-                        metadata = match.get("metadata", {})
-                        review_id = metadata.get("review_id", "")
-                        
-                        result = match_info.get("result", "")
-                        fighter_a = match_info.get("fighter_a", "")
-                        if (fighter_a and "wins" in result.lower() and fighter_a.lower() in result.lower()) or "Fighter A wins" in result or (selected_athlete_name in result and "wins" in result):
-                            result_icon = "🟢"
-                        elif "Fighter B wins" in result or (fighter_a and ("loses" in result.lower() or "lost" in result.lower()) and fighter_a.lower() in result.lower()):
-                            result_icon = "🔴"
-                        else:
-                            result_icon = "🟡"
-                        
-                        # Match card with improved layout
-                        with st.container():
-                            match_col, action_col = st.columns([3, 1])
-                            
-                            with match_col:
-                                opponent = match_info.get("fighter_b", "Unknown Opponent")
-                                match_title = f"vs {opponent}" if opponent else "Assessment"
-                                
-                                st.markdown(f"**🎥 {result_icon} {match_title}**")
-                                
-                                col1, col2, col3, col4 = st.columns(4)
-                                with col1:
-                                    st.caption(f"📅 {metadata.get('reviewed_at', '')[:10]}")
-                                with col2:
-                                    st.caption(f"🏆 {result}")
-                                with col3:
-                                    st.caption(f"🎯 {scores.get('fighter_a', 0)}-{scores.get('fighter_b', 0)}")
-                                with col4:
-                                    event = match_info.get("event", "")
-                                    if event:
-                                        st.caption(f"🏟️ {event}")
-                            
-                            with action_col:
-                                # Make buttons more readable - stack vertically instead of side-by-side
-                                if st.button("👁️ View & Export", key=f"view_{review_id}_{i}", help="View details and export options", use_container_width=True):
-                                    # Show only export options
-                                    with st.expander(f"📄 Export {match_title}", expanded=True):
-                                        st.markdown("**📄 Export Options:**")
-                                        export_col1, export_col2 = st.columns(2)
-                                        
-                                        with export_col1:
-                                            try:
-                                                pdf_bytes = export_pdf(match)
-                                                if pdf_bytes:
-                                                    st.download_button(
-                                                        label="📄 Download PDF", 
-                                                        data=pdf_bytes,
-                                                        file_name=f"{match_title.replace(' ', '_')}_analysis.pdf",
-                                                        mime="application/pdf",
-                                                        key=f"dl_pdf_{review_id}_{i}"
-                                                    )
-                                                else:
-                                                    st.error("❌ Failed to generate PDF - missing dependencies")
-                                            except Exception as e:
-                                                st.error(f"❌ PDF export error: {str(e)}")
-                                        
-                                        with export_col2:
-                                            try:
-                                                word_bytes = export_word(match)
-                                                if word_bytes:
-                                                    st.download_button(
-                                                        label="📝 Download Word Doc", 
-                                                        data=word_bytes,
-                                                        file_name=f"{match_title.replace(' ', '_')}_analysis.docx",
-                                                        mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-                                                        key=f"dl_word_{review_id}_{i}"
-                                                    )
-                                                else:
-                                                    st.error("❌ Failed to generate Word document - missing dependencies")
-                                            except Exception as e:
-                                                st.error(f"❌ Word export error: {str(e)}")
-                                
-                                if st.button("✏️ Edit", key=f"edit_{review_id}_{i}", help="Edit this match", use_container_width=True):
-                                    # Navigate back to match review mode with loaded data
-                                    st.session_state.page_mode = "match_review"
-                                    st.session_state.editing_existing_match = True
-                                    st.session_state.editing_review_id = review_id
-                                    st.success(f"✅ Loaded {match_title} for editing. Going to match review...")
-                                    st.rerun()
-                                
-                                if st.button("🗑️ Delete", key=f"delete_{review_id}_{i}", help="Delete this match", use_container_width=True, type="secondary"):
-                                    if athlete_manager.delete_match_review(selected_athlete_id, review_id):
-                                        st.success(f"🗑️ Deleted {match_title}")
-                                        st.rerun()
-                                    else:
-                                        st.error("Failed to delete match")
-                        
+                        def on_edit_match(review_id):
+                            st.session_state.page_mode = "match_review"
+                            st.session_state.editing_existing_match = True
+                            st.session_state.editing_review_id = review_id
+                            st.success(f"✅ Loaded match for editing. Going to match review...")
+                            st.rerun()
+                        def on_delete_match(review_id):
+                            if athlete_manager.delete_match_review(selected_athlete_id, review_id):
+                                st.success(f"🗑️ Deleted match")
+                                st.rerun()
+                            else:
+                                st.error("Failed to delete match")
+                        render_match_card(
+                            item["data"],
+                            athlete_name=selected_athlete_name,
+                            index=i,
+                            export_pdf=export_pdf,
+                            export_word=export_word,
+                            on_edit=on_edit_match,
+                            on_delete=on_delete_match,
+                            context_prefix="athlete_"
+                        )
                     elif item["type"] == "assessment":
-                        # Display assessment
-                        assessment = item["data"]
-                        assessment_id = assessment.get("report_id", "")
-                        match_context = assessment.get("match_context", {})
-                        overall_score = assessment.get("overall_score", 0)
-                        
-                        # Assessment card
-                        with st.container():
-                            assess_col, action_col = st.columns([3, 1])
-                            
-                            with assess_col:
-                                result_text = match_context.get("result", "Assessment")
-                                if "wins" in result_text.lower():
-                                    assess_icon = "🟢"
-                                elif "loses" in result_text.lower():
-                                    assess_icon = "🔴"
-                                else:
-                                    assess_icon = "📊"
-                                
-                                st.markdown(f"**📊 {assess_icon} Assessment**")
-                                
-                                col1, col2, col3, col4 = st.columns(4)
-                                with col1:
-                                    st.caption(f"📅 {assessment.get('date', '')[:10]}")
-                                with col2:
-                                    st.caption(f"🏆 {result_text}")
-                                with col3:
-                                    st.caption(f"⭐ Score: {overall_score:.1f}/5.0")
-                                with col4:
-                                    belt = match_context.get("belt_level", "")
-                                    if belt:
-                                        st.caption(f"🥋 {belt}")
-                            
-                            with action_col:
-                                # Make export more prominent like match reviews
-                                if st.button("👁️ View & Export", key=f"view_assess_{assessment_id}_{i}", help="View details and export options", use_container_width=True):
-                                    # Load assessment file and display details
-                                    file_path = assessment.get("file_path", "")
-                                    if file_path and os.path.exists(file_path):
-                                        try:
-                                            with open(file_path, 'r') as f:
-                                                assessment_data = json.load(f)
-                                            
-                                            with st.expander(f"📊 Assessment Details - {assessment_id}", expanded=True):
-                                                assessments_dict = assessment_data.get("assessments", {})
-                                                
-                                                st.markdown("**🎯 Skill Breakdown:**")
-                                                for area, data in assessments_dict.items():
-                                                    if data.get("demonstrated", False):
-                                                        rating = data.get("rating", 0)
-                                                        label = data.get("label", "")
-                                                        stars = "⭐" * rating + "☆" * (5 - rating)
-                                                        st.write(f"• **{area}**: {stars} ({label})")
-                                                
-                                                # Export options for assessments - same as match reviews
-                                                st.markdown("**📄 Export Options:**")
-                                                export_col1, export_col2 = st.columns(2)
-                                                
-                                                with export_col1:
-                                                    # Create a complete match-like structure for export that includes all required fields
-                                                    metadata = assessment_data.get("metadata", {})
-                                                    match_context = assessment_data.get("match_context", {})
-                                                    
-                                                    # Map assessment structure to match review structure
-                                                    export_data = {
-                                                        "metadata": {
-                                                            "review_id": metadata.get("report_id", ""),
-                                                            "reviewed_at": metadata.get("created_date", ""),
-                                                            "reviewer": "BJJ Mat IQ",
-                                                            "platform_version": "Phase 2.0",
-                                                            "owner": metadata.get("generated_by", "")
-                                                        },
-                                                        "match_info": {
-                                                            "match_number": match_context.get("match_number", ""),
-                                                            "fighter_a": metadata.get("athlete_id", "").replace("_", " ").title(),
-                                                            "fighter_b": match_context.get("opponent", ""),
-                                                            "team_a": "",
-                                                            "team_b": "",
-                                                            "belt": match_context.get("belt_level", ""),
-                                                            "weight_class": match_context.get("weight_class", ""),
-                                                            "age_division": "",
-                                                            "gi_nogi": "Gi",
-                                                            "ruleset": match_context.get("ruleset", "IBJJF"),
-                                                            "event": match_context.get("event", ""),
-                                                            "video_url": "",
-                                                            "result": match_context.get("result", ""),
-                                                            "submission_type": None
-                                                        },
-                                                        "assessments": assessments_dict,
-                                                        "timeline": assessment_data.get("timeline", []),  # Include timeline events from assessment
-                                                        "scores": {"fighter_a": 0, "fighter_b": 0},  # Default scores
-                                                        "analysis": {  # Add required analysis field
-                                                            "custom_strengths": assessment_data.get("coach_notes", ""),
-                                                            "custom_improvements": "",
-                                                            "strengths": assessment_data.get("strengths", []),
-                                                            "improvement_areas": assessment_data.get("improvement_areas", []),
-                                                            "drill_recommendations": {},
-                                                            "weaknesses": assessment_data.get("improvement_areas", [])
-                                                        }
-                                                    }
-                                                    
-                                                    try:
-                                                        pdf_bytes = export_pdf(export_data)
-                                                        if pdf_bytes:
-                                                            st.download_button(
-                                                                label="📄 Download PDF",
-                                                                data=pdf_bytes,
-                                                                file_name=f"Assessment_{assessment_id}.pdf",
-                                                                mime="application/pdf",
-                                                                key=f"dl_pdf_assess_{assessment_id}_{i}",
-                                                                use_container_width=True
-                                                            )
-                                                        else:
-                                                            st.error("❌ Failed to generate PDF - missing dependencies")
-                                                    except Exception as e:
-                                                        st.error(f"❌ PDF export error: {str(e)}")
-                                                
-                                                with export_col2:
-                                                    try:
-                                                        word_bytes = export_word(export_data)
-                                                        if word_bytes:
-                                                            st.download_button(
-                                                                label="📝 Download Word Doc",
-                                                                data=word_bytes,
-                                                                file_name=f"Assessment_{assessment_id}.docx",
-                                                                mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-                                                                key=f"dl_word_assess_{assessment_id}_{i}",
-                                                                use_container_width=True
-                                                            )
-                                                        else:
-                                                            st.error("❌ Failed to generate Word document - missing dependencies")
-                                                    except Exception as e:
-                                                        st.error(f"❌ Word export error: {str(e)}")
-                                                    
-                                        except Exception as e:
-                                            st.error(f"❌ Error loading assessment: {str(e)}")
-                                    else:
-                                        st.error("❌ Assessment file not found")
-                                
-                                if st.button("✏️ Edit", key=f"edit_assess_{assessment_id}_{i}", help="Edit this assessment", use_container_width=True):
-                                    # Navigate to assessment editing mode
-                                    file_path = assessment.get("file_path", "")
-                                    if file_path and os.path.exists(file_path):
-                                        try:
-                                            with open(file_path, 'r') as f:
-                                                assessment_data = json.load(f)
-                                            
-                                            # Load assessment data into session state for editing
-                                            st.session_state.editing_assessment = True
-                                            st.session_state.editing_assessment_id = assessment_id
-                                            st.session_state.editing_assessment_data = assessment_data
-                                            
-                                            # Set page mode to match review (assessment tab)
-                                            st.session_state.page_mode = "match_review"
-                                            st.success(f"✅ Loaded {assessment_id} for editing. Going to assessment...")
-                                            st.rerun()
-                                            
-                                        except Exception as e:
-                                            st.error(f"❌ Error loading assessment for editing: {str(e)}")
-                                    else:
-                                        st.error("❌ Assessment file not found")
-                                
-                                if st.button("🗑️ Delete", key=f"delete_assess_{assessment_id}_{i}", help="Delete this assessment", use_container_width=True, type="secondary"):
-                                    file_path = assessment.get("file_path", "")
-                                    if file_path and os.path.exists(file_path):
-                                        try:
-                                            # Delete the assessment file
-                                            os.remove(file_path)
-                                            
-                                            # Remove from athlete profile
-                                            athlete_profile = athlete_manager.get_athlete_profile(selected_athlete_id)
-                                            if athlete_profile and "assessment_reports" in athlete_profile:
-                                                athlete_profile["assessment_reports"] = [
-                                                    ar for ar in athlete_profile["assessment_reports"] 
-                                                    if ar.get("report_id") != assessment_id
-                                                ]
-                                                athlete_manager._save_athlete_profile(athlete_profile)
-                                            
-                                            st.success(f"🗑️ Deleted assessment {assessment_id}")
-                                            st.rerun()
-                                            
-                                        except Exception as e:
-                                            st.error(f"❌ Error deleting assessment: {str(e)}")
-                                    else:
-                                        st.error("❌ Assessment file not found")
-                    
+                        def on_edit_assessment(assessment_id):
+                            file_path = item["data"].get("file_path", "")
+                            if file_path and os.path.exists(file_path):
+                                try:
+                                    with open(file_path, 'r') as f:
+                                        assessment_data = json.load(f)
+                                    st.session_state.editing_assessment = True
+                                    st.session_state.editing_assessment_id = assessment_id
+                                    st.session_state.editing_assessment_data = assessment_data
+                                    st.session_state.page_mode = "match_review"
+                                    st.success(f"✅ Loaded assessment for editing. Going to assessment...")
+                                    st.rerun()
+                                except Exception as e:
+                                    st.error(f"❌ Error loading assessment for editing: {str(e)}")
+                            else:
+                                st.error("❌ Assessment file not found")
+                        def on_delete_assessment(assessment_id):
+                            file_path = item["data"].get("file_path", "")
+                            if file_path and os.path.exists(file_path):
+                                try:
+                                    os.remove(file_path)
+                                    athlete_profile = athlete_manager.get_athlete_profile(selected_athlete_id)
+                                    if athlete_profile and "assessment_reports" in athlete_profile:
+                                        athlete_profile["assessment_reports"] = [
+                                            ar for ar in athlete_profile["assessment_reports"] 
+                                            if ar.get("report_id") != assessment_id
+                                        ]
+                                        athlete_manager._save_athlete_profile(athlete_profile)
+                                    st.success(f"🗑️ Deleted assessment {assessment_id}")
+                                    st.rerun()
+                                except Exception as e:
+                                    st.error(f"❌ Error deleting assessment: {str(e)}")
+                            else:
+                                st.error("❌ Assessment file not found")
+                        render_assessment_card(
+                            item["data"],
+                            athlete_name=selected_athlete_name,
+                            index=i,
+                            export_pdf=export_pdf,
+                            export_word=export_word,
+                            on_edit=on_edit_assessment,
+                            on_delete=on_delete_assessment,
+                            context_prefix="athlete_"
+                        )
                     st.divider()
         
         except Exception as e:
@@ -1135,200 +910,51 @@ elif st.session_state.page_mode == "progress_tracking":
             # Display all items
             for i, item in enumerate(all_items):
                 if item["type"] == "match":
-                    match = item["data"]
-                    match_info = match.get("match_info", {})
-                    scores = match.get("scores", {})
-                    metadata = match.get("metadata", {})
-                    review_id = metadata.get("review_id", "")
-                    
-                    result = match_info.get("result", "")
-                    if "wins" in result.lower():
-                        result_icon = "🟢"
-                    elif "loses" in result.lower() or "lost" in result.lower():
-                        result_icon = "🔴"  
-                    else:
-                        result_icon = "🟡"
-                    
-                    with st.container():
-                        match_col, action_col = st.columns([3, 1])
-                        
-                        with match_col:
-                            opponent = match_info.get("fighter_b", "Unknown Opponent")
-                            st.markdown(f"**{result_icon} {item['athlete_name']} vs {opponent}**")
-                            
-                            col1, col2, col3, col4 = st.columns(4)
-                            with col1:
-                                st.caption(f"📅 {metadata.get('reviewed_at', '')[:10]}")
-                            with col2:
-                                st.caption(f"🏆 {result}")
-                            with col3:
-                                st.caption(f"🎯 {scores.get('fighter_a', 0)}-{scores.get('fighter_b', 0)}")
-                            with col4:
-                                event = match_info.get("event", "")
-                                if event:
-                                    st.caption(f"🏟️ {event}")
-                        
-                        with action_col:
-                            match_title = f"{item['athlete_name']} vs {opponent}"
-                            if st.button("👁️ View & Export", key=f"hist_view_{review_id}_{i}", help="View details and export options", use_container_width=True):
-                                # Show export options
-                                with st.expander(f"📄 Export {match_title}", expanded=True):
-                                    st.markdown("**📄 Export Options:**")
-                                    export_col1, export_col2 = st.columns(2)
-                                    
-                                    with export_col1:
-                                        try:
-                                            pdf_bytes = export_pdf(match)
-                                            if pdf_bytes:
-                                                st.download_button(
-                                                    label="📄 Download PDF", 
-                                                    data=pdf_bytes,
-                                                    file_name=f"{match_title.replace(' ', '_')}_analysis.pdf",
-                                                    mime="application/pdf",
-                                                    key=f"hist_dl_pdf_{review_id}_{i}"
-                                                )
-                                            else:
-                                                st.error("❌ Failed to generate PDF - missing dependencies")
-                                        except Exception as e:
-                                            st.error(f"❌ PDF export error: {str(e)}")
-                                    
-                                    with export_col2:
-                                        try:
-                                            word_bytes = export_word(match)
-                                            if word_bytes:
-                                                st.download_button(
-                                                    label="📝 Download Word Doc", 
-                                                    data=word_bytes,
-                                                    file_name=f"{match_title.replace(' ', '_')}_analysis.docx",
-                                                    mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-                                                    key=f"hist_dl_word_{review_id}_{i}"
-                                                )
-                                            else:
-                                                st.error("❌ Failed to generate Word document - missing dependencies")
-                                        except Exception as e:
-                                            st.error(f"❌ Word export error: {str(e)}")
-                            
-                            if st.button("✏️ Edit", key=f"hist_edit_{review_id}_{i}", help="Edit this match", use_container_width=True):
-                                st.session_state.current_athlete_id = item['athlete_id']
-                                st.session_state.registered_athlete_name = item['athlete_name']
-                                st.session_state.page_mode = "match_review"
-                                st.session_state.editing_existing_match = True
-                                st.session_state.editing_review_id = review_id
-                                st.success(f"✅ Loading match for editing...")
-                                st.rerun()
-                
+                    def on_edit_match(review_id, athlete_id=item['athlete_id'], athlete_name=item['athlete_name']):
+                        st.session_state.current_athlete_id = athlete_id
+                        st.session_state.registered_athlete_name = athlete_name
+                        st.session_state.page_mode = "match_review"
+                        st.session_state.editing_existing_match = True
+                        st.session_state.editing_review_id = review_id
+                        st.success(f"✅ Loading match for editing...")
+                        st.rerun()
+                    render_match_card(
+                        item["data"],
+                        athlete_name=item["athlete_name"],
+                        index=i,
+                        export_pdf=export_pdf,
+                        export_word=export_word,
+                        on_edit=on_edit_match,
+                        on_delete=None,
+                        context_prefix="hist_"
+                    )
                 elif item["type"] == "assessment":
-                    assessment = item["data"]
-                    assessment_id = assessment.get("report_id", "")
-                    match_context = assessment.get("match_context", {})
-                    overall_score = assessment.get("overall_score", 0)
-                    
-                    with st.container():
-                        assess_col, action_col = st.columns([3, 1])
-                        
-                        with assess_col:
-                            st.markdown(f"**📊 {item['athlete_name']} - Assessment**")
-                            
-                            col1, col2, col3, col4 = st.columns(4)
-                            with col1:
-                                st.caption(f"📅 {assessment.get('date', '')[:10]}")
-                            with col2:
-                                st.caption(f"🏆 {match_context.get('result', 'Assessment')}")
-                            with col3:
-                                st.caption(f"⭐ Score: {overall_score:.1f}/5.0")
-                            with col4:
-                                belt = match_context.get("belt_level", "")
-                                if belt:
-                                    st.caption(f"🥋 {belt}")
-                        
-                        with action_col:
-                            if st.button("👁️ View & Export", key=f"hist_view_assess_{assessment_id}_{i}", help="View details and export options", use_container_width=True):
-                                # Load assessment file and display details
-                                file_path = assessment.get("file_path", "")
-                                if file_path and os.path.exists(file_path):
-                                    try:
-                                        with open(file_path, 'r') as f:
-                                            assessment_data = json.load(f)
-                                        
-                                        with st.expander(f"📊 Assessment Details - {assessment_id}", expanded=True):
-                                            assessments_dict = assessment_data.get("assessments", {})
-                                            
-                                            st.markdown("**🎯 Skill Breakdown:**")
-                                            for area, data in assessments_dict.items():
-                                                rating = data.get("rating", 0)
-                                                label = data.get("label", "Unknown")
-                                                st.write(f"**{area}**: {label} ({rating}/5)")
-                                            
-                                            # Export options for assessments  
-                                            st.markdown("**📄 Export Options:**")
-                                            export_col1, export_col2 = st.columns(2)
-                                            
-                                            with export_col1:
-                                                # Create export data format compatible with match structure
-                                                export_data = {
-                                                    "match_info": assessment.get("match_context", {}),
-                                                    "assessments": assessments_dict,
-                                                    "metadata": {
-                                                        "review_id": assessment_id,
-                                                        "reviewed_at": assessment.get("date", ""),
-                                                        "assessment_type": "Performance Assessment"
-                                                    }
-                                                }
-                                                
-                                                try:
-                                                    pdf_bytes = export_pdf(export_data)
-                                                    if pdf_bytes:
-                                                        st.download_button(
-                                                            label="📄 Download PDF", 
-                                                            data=pdf_bytes,
-                                                            file_name=f"{item['athlete_name']}_assessment_{assessment_id}.pdf",
-                                                            mime="application/pdf",
-                                                            key=f"hist_assess_dl_pdf_{assessment_id}_{i}"
-                                                        )
-                                                    else:
-                                                        st.error("❌ Failed to generate PDF - missing dependencies")
-                                                except Exception as e:
-                                                    st.error(f"❌ PDF export error: {str(e)}")
-                                            
-                                            with export_col2:
-                                                try:
-                                                    word_bytes = export_word(export_data)
-                                                    if word_bytes:
-                                                        st.download_button(
-                                                            label="📝 Download Word Doc", 
-                                                            data=word_bytes,
-                                                            file_name=f"{item['athlete_name']}_assessment_{assessment_id}.docx",
-                                                            mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-                                                            key=f"hist_assess_dl_word_{assessment_id}_{i}"
-                                                        )
-                                                    else:
-                                                        st.error("❌ Failed to generate Word document - missing dependencies")
-                                                except Exception as e:
-                                                    st.error(f"❌ Word export error: {str(e)}")
-                                                
-                                    except Exception as e:
-                                        st.error(f"❌ Error loading assessment: {str(e)}")
-                                else:
-                                    st.error("❌ Assessment file not found")
-                            
-                            if st.button("✏️ Edit", key=f"hist_edit_assess_{assessment_id}_{i}", help="Edit this assessment", use_container_width=True):
-                                file_path = assessment.get("file_path", "")
-                                if file_path and os.path.exists(file_path):
-                                    try:
-                                        with open(file_path, 'r') as f:
-                                            assessment_data = json.load(f)
-                                        
-                                        st.session_state.current_athlete_id = item['athlete_id']
-                                        st.session_state.registered_athlete_name = item['athlete_name']
-                                        st.session_state.editing_assessment_data = assessment_data
-                                        st.session_state.page_mode = "match_review"
-                                        st.success(f"✅ Loading assessment for editing...")
-                                        st.rerun()
-                                    except Exception as e:
-                                        st.error(f"❌ Error loading assessment: {str(e)}")
-                                else:
-                                    st.error("❌ Assessment file not found")
-                
+                    def on_edit_assessment(assessment_id, athlete_id=item['athlete_id'], athlete_name=item['athlete_name']):
+                        file_path = item["data"].get("file_path", "")
+                        if file_path and os.path.exists(file_path):
+                            try:
+                                with open(file_path, 'r') as f:
+                                    assessment_data = json.load(f)
+                                st.session_state.current_athlete_id = athlete_id
+                                st.session_state.registered_athlete_name = athlete_name
+                                st.session_state.editing_assessment_data = assessment_data
+                                st.session_state.page_mode = "match_review"
+                                st.success(f"✅ Loading assessment for editing...")
+                                st.rerun()
+                            except Exception as e:
+                                st.error(f"❌ Error loading assessment: {str(e)}")
+                        else:
+                            st.error("❌ Assessment file not found")
+                    render_assessment_card(
+                        item["data"],
+                        athlete_name=item["athlete_name"],
+                        index=i,
+                        export_pdf=export_pdf,
+                        export_word=export_word,
+                        on_edit=on_edit_assessment,
+                        on_delete=None,
+                        context_prefix="hist_"
+                    )
                 st.divider()
 
     elif analysis_mode == "👤 Individual Athlete":
@@ -1673,27 +1299,23 @@ elif st.session_state.page_mode == "progress_tracking":
             st.info("💡 Complete and save at least one match review to see it here.")
         else:
             st.caption(f"Total reviews: {len(all_reviews)}")
-            
-            # Display all reviews with actions
-            for review in all_reviews[:20]:  # Limit to 20 most recent
-                review_id = review["review_id"]
-                match_info = review.get("match_info", {})
-                metadata = review.get("metadata", {})
-                
-                col_review, col_actions = st.columns([4, 1])
-                
-                with col_review:
-                    title = f"{match_info.get('fighter_a', 'Unknown')} vs {match_info.get('fighter_b', 'Unknown')}"
-                    st.markdown(f"**{title}** ({review_id})")
-                    st.caption(f"📅 {metadata.get('reviewed_at', 'Unknown date')[:10]}")
-                    
-                with col_actions:
-                    if st.button("✏️", key=f"edit_all_{review_id}", help="Edit this review"):
-                        st.session_state.page_mode = "match_review"
-                        st.session_state.editing_existing_match = True
-                        st.session_state.editing_review_id = review_id
-                        st.success("Loading for edit...")
-                        st.rerun()
+            for i, review in enumerate(all_reviews[:20]):
+                def on_edit_match(review_id):
+                    st.session_state.page_mode = "match_review"
+                    st.session_state.editing_existing_match = True
+                    st.session_state.editing_review_id = review_id
+                    st.success("Loading for edit...")
+                    st.rerun()
+                render_match_card(
+                    review,
+                    athlete_name=review.get("match_info", {}).get("fighter_a", None),
+                    index=i,
+                    export_pdf=export_pdf,
+                    export_word=export_word,
+                    on_edit=on_edit_match,
+                    on_delete=None,
+                    context_prefix="all_"
+                )
 
     elif analysis_mode == "🏆 Team Analysis":
         st.subheader("🏆 Team Analysis")
