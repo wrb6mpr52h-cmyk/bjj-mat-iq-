@@ -280,24 +280,23 @@ if st.session_state.page_mode == "landing":
 
     # Overall workflow instructions
     st.info("🚀 **Getting Started:**\n"
-           "1. 👤 **Select an Athlete** from the dropdown below (or create new one)\n"
-           "2. 🥊 **Start a New Match Review** using the button below\n" 
-           "3. 📝 **Fill Match Details** → 🎥 **Watch & Log Events** → 📊 **Review Assessment**\n"
-           "4. 📄 **Export Reports** and track progress over time")
+            "1. 👤 **Select an Athlete** from the dropdown below (or create new one)\n"
+            "2. 🥊 **Start a New Match Review** using the button below\n" 
+            "3. 📝 **Fill Match Details** → 🎥 **Watch & Log Events** → 📊 **Review Assessment**\n"
+            "4. 📄 **Export Reports** and track progress over time")
 
     # Athlete Selection Section (moved to top)
     st.subheader("👤 Select Your Athlete")
-  st.caption("...")
+    st.caption("...")
 
-col_athlete1, col_athlete2 = st.columns([2, 1])
+    col_athlete1, col_athlete2 = st.columns([2, 1])
 
-with col_athlete1:
-    # ... as above ...
-    pass  # code
-
-# Now outside the with block
-athlete_options = ...
-selected_option = ...
+    with col_athlete1:
+        # Fetch athletes (implement as needed)
+        athlete_manager = get_athlete_manager()
+        existing_athletes = athlete_manager.list_all_athletes()
+        athlete_options = ["Select Athlete", "Create New Athlete"] + [a['name'] for a in existing_athletes]
+        selected_option = st.selectbox("Choose an athlete", athlete_options)
 
         if selected_option == "Select Athlete":
             st.info("👆 Please select an existing athlete from the dropdown above or choose 'Create New Athlete' to add a new profile.")
@@ -312,10 +311,10 @@ selected_option = ...
             # Show athlete creation form
             st.markdown("#### 👤 Create New Athlete Profile")
             st.info("🏷️ **Athlete Profile Benefits:**\n"
-                   "• Automatically populates as 'Fighter A' in match reviews\n"
-                   "• Tracks progress across multiple matches\n"
-                   "• Generates personalized training recommendations\n"
-                   "• Links all your match data to one athlete profile")
+                    "• Automatically populates as 'Fighter A' in match reviews\n"
+                    "• Tracks progress across multiple matches\n"
+                    "• Generates personalized training recommendations\n"
+                    "• Links all your match data to one athlete profile")
 
             with st.form("create_athlete_form"):
                 new_name = st.text_input("Athlete Name*", placeholder="Enter athlete's full name")
@@ -374,12 +373,11 @@ selected_option = ...
                 # Automatically set this athlete as Fighter A for match reviews
                 st.session_state.registered_athlete_name = selected_athlete['name']
                 st.session_state.registered_athlete_team = selected_athlete.get('team', '')
-                # Store athlete profile details for auto-population in match info
                 st.session_state.registered_athlete_belt = selected_athlete.get('current_belt', '')
                 st.session_state.registered_athlete_age_division = selected_athlete.get('current_age_division', '')
                 st.session_state.registered_athlete_weight_class = selected_athlete.get('current_weight_class', '')
                 st.success(f"✅ Selected: {selected_athlete['name']}")
-                st.info(f"🏷️ This athlete will be used as Fighter A in match reviews with profile details auto-populated")
+                st.info("🏷️ This athlete will be used as Fighter A in match reviews with profile details auto-populated")
 
                 # Show athlete info
                 matches_count = len(selected_athlete.get("match_history", []))
@@ -409,8 +407,8 @@ selected_option = ...
                         st.session_state.current_athlete_id = None
                         # Clear registered athlete info
                         for key in ['registered_athlete_name', 'registered_athlete_team', 
-                                   'registered_athlete_belt', 'registered_athlete_age_division', 
-                                   'registered_athlete_weight_class']:
+                                    'registered_athlete_belt', 'registered_athlete_age_division', 
+                                    'registered_athlete_weight_class']:
                             if key in st.session_state:
                                 del st.session_state[key]
                         st.rerun()
