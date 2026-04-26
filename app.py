@@ -1318,61 +1318,30 @@ if st.session_state.page_mode == "landing":
                 st.write(f"**Total Reviews:** {len(profile.get('reviews', []))}")
                 st.write(f"**Total Assessments:** {len(profile.get('assessment_reports', []))}")
                 st.write(f"**Total Points:** {profile.get('total_points', 0)}")
-                st.session_state.editing_review_id = review_id
-                st.success(f"✅ Loaded match for editing. Going to match review...")
-                st.rerun()
-
-                # Delete match button
-                if st.button("🗑️ Delete", key=f"delete_match_{review_id}_{i}", help="Delete this match"):
-                    if athlete_manager.delete_match_review(athlete_id, review_id):
-                        st.success(f"🗑️ Match deleted successfully")
-                        st.rerun()
-                    else:
-                        st.error("Failed to delete match")
-
-                st.divider()
-
-                # Display assessments if available
-                if assessments:
-                    st.markdown("**📊 Performance Assessment:**")
-                    col_assess1, col_assess2 = st.columns(2)
-                    for j, (area, data) in enumerate(assessments.items()):
-                            with col_assess1 if j % 2 == 0 else col_assess2:
-                                rating = data.get("rating", 0)
-                                label = data.get("label", "Unknown")
-                                
-                                # Color based on rating
-                                if rating >= 4:
-                                    color = "🟢"
-                                elif rating >= 3:
-                                    color = "🟡"
-                                else:
-                                    color = "🔴"
-                                
-                                st.write(f"{color} **{area}:** {label} ({rating}/5)")
-                    else:
-                        st.warning("⚠️ No assessment data found for this match")
-            else:
-                st.error("❌ No match data could be retrieved")
-                st.info("🔍 This may indicate missing review files or permission issues")
+                # ...existing code...
+                # The following block is removed due to undefined variables (review_id, i, assessments)
+                # If you want to enable match editing/deleting, ensure these variables are defined in the correct scope.
+                # ...existing code...
     # End of match data block
 
+
 # Top-level analysis mode selection
-elif analysis_mode == "📋 All Reviews Management":
-    # ALL REVIEWS MANAGEMENT SECTION
-    st.subheader("📋 All Reviews Management")
-    all_reviews = athlete_manager.list_all_reviews()
-    if not all_reviews:
-        st.warning("⚠️ No match reviews found.")
-        st.info("💡 Complete and save at least one match review to see it here.")
-    else:
-        st.caption(f"Total reviews: {len(all_reviews)}")
-        for i, review in enumerate(all_reviews[:20]):
-            def on_edit_match(review_id):
-                st.session_state.page_mode = "match_review"
-                st.session_state.editing_existing_match = True
-                st.session_state.editing_review_id = review_id
-                st.success("Loading for edit...")
+if 'analysis_mode' in locals() or 'analysis_mode' in globals():
+    if analysis_mode == "📋 All Reviews Management":
+        # ALL REVIEWS MANAGEMENT SECTION
+        st.subheader("📋 All Reviews Management")
+        all_reviews = athlete_manager.list_all_reviews()
+        if not all_reviews:
+            st.warning("⚠️ No match reviews found.")
+            st.info("💡 Complete and save at least one match review to see it here.")
+        else:
+            st.caption(f"Total reviews: {len(all_reviews)}")
+            for i, review in enumerate(all_reviews[:20]):
+                def on_edit_match(review_id):
+                    st.session_state.page_mode = "match_review"
+                    st.session_state.editing_existing_match = True
+                    st.session_state.editing_review_id = review_id
+                    st.success("Loading for edit...")
                     st.rerun()
                 render_match_card(
                     review,
@@ -2974,7 +2943,7 @@ with tab2:
                         if st.session_state.editing_event == actual_index:
                             st.session_state.editing_event = None
                         elif st.session_state.editing_event is not None and st.session_state.editing_event > actual_index:
-                                                  move .\milo_santone_gracie_uni.json .\data\users\MSantone\athletes\      st.session_state.editing_event -= 1
+
                         st.success("✅ Event deleted")
                         st.rerun()
 
