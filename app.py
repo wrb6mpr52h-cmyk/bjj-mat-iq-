@@ -294,25 +294,8 @@ if st.session_state.page_mode == "landing":
     col1, col2, col3, col4 = st.columns(4)
 
     with col1:
-        if st.button("🥊 New Match Review", type="primary", use_container_width=True, key="home_new_match", help="Start analyzing a new BJJ match"):
-            st.session_state.page_mode = "match_review"
-            # Clear previous match data but keep registered athlete info
-            keys_to_clear = ["events", "assessments", "tactical_tags", "editing_event", 
-                            "editing_existing_match", "editing_review_id", "assessments_calculated"]
-            for key in keys_to_clear:
-                if key in st.session_state:
-                    del st.session_state[key]
-            st.rerun()
 
-    with col2:
-        if st.button("📈 Trends", type="primary", use_container_width=True, key="home_trends", help="View combined analysis across all your reviews"):
-            st.session_state.page_mode = "progress_tracking"
-            # Set up for individual trends analysis
-            st.session_state.analysis_mode = "👤 Individual Athlete"
-            # For individual users, automatically set their athlete if available
-            if st.session_state.user_role == "individual" and st.session_state.get('current_athlete_id'):
-                st.session_state.selected_athlete_id = st.session_state.current_athlete_id
-            st.rerun()
+    # (Removed duplicate action buttons here; only top-of-page versions remain)
 
     with col3:
         if st.button("📊 History", type="secondary", use_container_width=True, help="View and manage your match history"):
