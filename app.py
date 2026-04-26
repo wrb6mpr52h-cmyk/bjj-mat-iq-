@@ -315,9 +315,10 @@ if st.session_state.page_mode == "landing":
         athlete_manager = get_athlete_manager()
         existing_athletes = athlete_manager.list_all_athletes()
         # Only include athletes with a 'name' key
-        valid_athletes = [a for a in existing_athletes if 'name' in a and a['name']]
+        valid_athletes = [a for a in existing_athletes if 'name' in a and a['name'] and 'athlete_id' in a]
         missing_name_count = len(existing_athletes) - len(valid_athletes)
-        athlete_options = ["Select Athlete", "Create New Athlete"] + [a['name'] for a in valid_athletes]
+        # Use both name and athlete_id for unique selection
+        athlete_options = ["Select Athlete", "Create New Athlete"] + [f"{a['name']} [{a['athlete_id']}]" for a in valid_athletes]
         selected_option = st.selectbox("Choose an athlete", athlete_options, index=0)
         # Removed warning about missing athlete names
 
@@ -389,12 +390,16 @@ if st.session_state.page_mode == "landing":
                     else:
                         st.warning("⚠️ Please enter an athlete name")
         else:
-            # Extract athlete from selection
+            # Extract athlete from selection using athlete_id
             selected_athlete = None
-            for athlete in existing_athletes:
-                if 'name' in athlete and athlete['name'] == selected_option:
-                    selected_athlete = athlete
-                    break
+            if selected_option not in ["Select Athlete", "Create New Athlete"]:
+                # Parse athlete_id from option string
+                if selected_option.endswith("]") and "[" in selected_option:
+                    athlete_id_lookup = selected_option.split("[")[-1][:-1]
+                    for athlete in valid_athletes:
+                        if athlete.get("athlete_id") == athlete_id_lookup:
+                            selected_athlete = athlete
+                            break
 
             if selected_athlete:
                 # Always fetch the latest athlete profile from disk for all info and session state
