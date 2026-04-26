@@ -1362,12 +1362,14 @@ elif st.session_state.page_mode == "progress_tracking":
         try:
             progress_analysis = athlete_manager.get_progress_analysis(athlete_id)
             matches = athlete_manager.get_athlete_matches(athlete_id)  # Get matches here too
-            
-            # Check total number of reviews (matches + assessments)
-            total_matches = progress_analysis.get("total_matches", 0)
-            total_assessments = progress_analysis.get("total_assessments", 0) 
-            total_reviews = total_matches + total_assessments
-            
+            if progress_analysis.get("error"):
+                total_matches = 0
+                total_assessments = 0
+                total_reviews = 0
+            else:
+                total_matches = progress_analysis.get("total_matches", 0)
+                total_assessments = progress_analysis.get("total_assessments", 0)
+                total_reviews = total_matches + total_assessments
         except Exception as e:
             st.error(f"🔍 Debug: Error getting analysis: {str(e)}")
             import traceback
