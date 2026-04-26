@@ -299,16 +299,8 @@ if st.session_state.page_mode == "landing":
 
     # (Removed duplicate action buttons here; only top-of-page versions remain)
 
-    with col3:
-        if st.button("📊 History", type="secondary", use_container_width=True, help="View and manage your match history"):
-            st.session_state.page_mode = "progress_tracking"
-            st.session_state.analysis_mode = "📊 History"
-            st.rerun()
 
-    with col4:
-        if st.button("👤 Member Info", type="secondary", use_container_width=True, help="View your profile and account details"):
-            st.session_state.page_mode = "member_info"
-            st.rerun()
+    # (Removed duplicate '📊 History' and '👤 Member Info' buttons; only top-of-page versions remain)
 
     st.markdown("---")
 
