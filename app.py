@@ -1081,9 +1081,10 @@ elif st.session_state.page_mode == "progress_tracking":
         
         if all_athletes:
             for athlete in all_athletes:
-                athlete_id = athlete["athlete_id"]
-                athlete_name = athlete["name"]
-                
+                athlete_id = athlete.get("athlete_id")
+                athlete_name = athlete.get("name")
+                if not athlete_id or not athlete_name:
+                    continue  # Skip invalid athlete entries
                 # Get matches for this athlete
                 try:
                     matches = athlete_manager.get_athlete_matches(athlete_id)
@@ -1099,7 +1100,6 @@ elif st.session_state.page_mode == "progress_tracking":
                         })
                 except:
                     pass
-                
                 # Get assessments for this athlete
                 try:
                     athlete_profile = athlete_manager.get_athlete_profile(athlete_id)
