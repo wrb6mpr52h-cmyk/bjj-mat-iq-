@@ -1325,6 +1325,8 @@ if st.session_state.page_mode == "landing":
     # End of match data block
 
 
+if 'analysis_mode' not in locals() and 'analysis_mode' not in globals():
+    analysis_mode = None
 # Top-level analysis mode selection
 if 'analysis_mode' in locals() or 'analysis_mode' in globals():
     if analysis_mode == "📋 All Reviews Management":
@@ -2943,7 +2945,7 @@ with tab2:
                         if st.session_state.editing_event == actual_index:
                             st.session_state.editing_event = None
                         elif st.session_state.editing_event is not None and st.session_state.editing_event > actual_index:
-
+                            pass
                         st.success("✅ Event deleted")
                         st.rerun()
 
