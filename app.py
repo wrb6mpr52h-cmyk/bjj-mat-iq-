@@ -1355,14 +1355,14 @@ if st.session_state.page_mode == "landing":
             else:
                 st.error("❌ No match data could be retrieved")
                 st.info("🔍 This may indicate missing review files or permission issues")
+    # End of match data block
 
-    elif analysis_mode == "📋 All Reviews Management":
-        # ALL REVIEWS MANAGEMENT SECTION
-        st.subheader("📋 All Reviews Management")
-        
-        all_reviews = athlete_manager.list_all_reviews()
-        
-        if not all_reviews:
+# Top-level analysis mode selection
+elif analysis_mode == "📋 All Reviews Management":
+    # ALL REVIEWS MANAGEMENT SECTION
+    st.subheader("📋 All Reviews Management")
+    all_reviews = athlete_manager.list_all_reviews()
+    if not all_reviews:
             st.warning("⚠️ No match reviews found.")
             st.info("💡 Complete and save at least one match review to see it here.")
         else:
