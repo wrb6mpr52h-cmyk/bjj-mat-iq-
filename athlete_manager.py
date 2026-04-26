@@ -140,7 +140,7 @@ class AthleteManager:
         
         if self.user_role == "team_owner":
             # Team owners can see their own athletes and their team's athletes
-            if athlete_owner == self.current_user:
+            if athlete_owner and self.current_user and athlete_owner.lower() == self.current_user.lower():
                 return True
             # Add logic here to check if athlete belongs to team owner's team
             # For now, just check if user has team ownership permissions for this team
@@ -148,7 +148,7 @@ class AthleteManager:
         
         elif self.user_role == "individual":
             # Individual users only see their own athletes
-            if athlete_owner == self.current_user:
+            if athlete_owner and self.current_user and athlete_owner.lower() == self.current_user.lower():
                 return True
             
             # Also check owned_athletes field in users.json file
@@ -658,28 +658,33 @@ class AthleteManager:
         athletes = []
         seen_athlete_ids = set()
         
-        for athlete_dir in self._get_athlete_dirs():
+        import streamlit as st
+        debug_dirs = self._get_athlete_dirs()
+        st.warning(f"[DEBUG] list_all_athletes: athlete_dirs={debug_dirs}")
+        for athlete_dir in debug_dirs:
             if not os.path.exists(athlete_dir):
                 continue
-                
-            for filename in os.listdir(athlete_dir):
+            files = os.listdir(athlete_dir)
+            st.warning(f"[DEBUG] list_all_athletes: files in {athlete_dir}: {files}")
+            for filename in files:
                 if filename.endswith('.json'):
                     athlete_id = filename[:-5]  # Remove .json
-                    
                     # Avoid duplicates
                     if athlete_id in seen_athlete_ids:
                         continue
-                    
                     try:
                         profile_path = os.path.join(athlete_dir, filename)
                         with open(profile_path, 'r') as f:
                             profile = json.load(f)
-                        
                         # Check access permissions
                         if self._can_access_athlete(profile):
+                            st.warning(f"[DEBUG] list_all_athletes: adding athlete {athlete_id}")
                             athletes.append(profile)
                             seen_athlete_ids.add(athlete_id)
+                        else:
+                            st.warning(f"[DEBUG] list_all_athletes: access denied for {athlete_id}")
                     except (json.JSONDecodeError, IOError):
+                        st.warning(f"[DEBUG] list_all_athletes: failed to load {filename}")
                         continue  # Skip corrupted files
         
         return sorted(athletes, key=lambda x: x.get("name", ""))
