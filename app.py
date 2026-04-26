@@ -1321,23 +1321,22 @@ if st.session_state.page_mode == "landing":
                 st.session_state.editing_review_id = review_id
                 st.success(f"✅ Loaded match for editing. Going to match review...")
                 st.rerun()
-                        
-                        # Delete match button  
-                        if st.button("🗑️ Delete", key=f"delete_match_{review_id}_{i}", help="Delete this match"):
-                            if athlete_manager.delete_match_review(athlete_id, review_id):
-                                st.success(f"🗑️ Match deleted successfully")
-                                st.rerun()
-                            else:
-                                st.error("Failed to delete match")
-                    
-                    st.divider()
-                    
-                    # Display assessments if available
-                    if assessments:
-                        st.markdown("**📊 Performance Assessment:**")
-                        col_assess1, col_assess2 = st.columns(2)
-                        
-                        for j, (area, data) in enumerate(assessments.items()):
+
+                # Delete match button
+                if st.button("🗑️ Delete", key=f"delete_match_{review_id}_{i}", help="Delete this match"):
+                    if athlete_manager.delete_match_review(athlete_id, review_id):
+                        st.success(f"🗑️ Match deleted successfully")
+                        st.rerun()
+                    else:
+                        st.error("Failed to delete match")
+
+                st.divider()
+
+                # Display assessments if available
+                if assessments:
+                    st.markdown("**📊 Performance Assessment:**")
+                    col_assess1, col_assess2 = st.columns(2)
+                    for j, (area, data) in enumerate(assessments.items()):
                             with col_assess1 if j % 2 == 0 else col_assess2:
                                 rating = data.get("rating", 0)
                                 label = data.get("label", "Unknown")
