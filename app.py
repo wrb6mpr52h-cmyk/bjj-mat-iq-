@@ -398,7 +398,11 @@ if st.session_state.page_mode == "landing":
 
             if selected_athlete:
                 # Always fetch the latest athlete profile from disk for all info and session state
-                latest_profile = athlete_manager.get_athlete_profile(selected_athlete["athlete_id"])
+                athlete_id_debug = selected_athlete["athlete_id"]
+                search_dirs_debug = athlete_manager._get_athlete_dirs()
+                st.warning(f"[DEBUG] Looking for athlete_id: {athlete_id_debug}")
+                st.warning(f"[DEBUG] Athlete search paths: {search_dirs_debug}")
+                latest_profile = athlete_manager.get_athlete_profile(athlete_id_debug)
                 if latest_profile:
                     st.session_state.current_athlete_id = latest_profile["athlete_id"]
                     st.session_state.registered_athlete_name = latest_profile['name']
