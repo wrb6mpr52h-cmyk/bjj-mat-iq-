@@ -286,7 +286,48 @@ if st.session_state.page_mode == "landing":
             "3. 📝 **Fill Match Details** → 🎥 **Watch & Log Events** → 📊 **Review Assessment**\n"
             "4. 📄 **Export Reports** and track progress over time")
 
-    # Athlete Selection Section (moved to top)
+
+    # Move action buttons to the top
+    st.markdown("---")
+    st.markdown("Choose an action below:")
+
+    col1, col2, col3, col4 = st.columns(4)
+
+    with col1:
+        if st.button("🥊 New Match Review", type="primary", use_container_width=True, key="home_new_match", help="Start analyzing a new BJJ match"):
+            st.session_state.page_mode = "match_review"
+            # Clear previous match data but keep registered athlete info
+            keys_to_clear = ["events", "assessments", "tactical_tags", "editing_event", 
+                            "editing_existing_match", "editing_review_id", "assessments_calculated"]
+            for key in keys_to_clear:
+                if key in st.session_state:
+                    del st.session_state[key]
+            st.rerun()
+
+    with col2:
+        if st.button("📈 Trends", type="primary", use_container_width=True, key="home_trends", help="View combined analysis across all your reviews"):
+            st.session_state.page_mode = "progress_tracking"
+            # Set up for individual trends analysis
+            st.session_state.analysis_mode = "👤 Individual Athlete"
+            # For individual users, automatically set their athlete if available
+            if st.session_state.user_role == "individual" and st.session_state.get('current_athlete_id'):
+                st.session_state.selected_athlete_id = st.session_state.current_athlete_id
+            st.rerun()
+
+    with col3:
+        if st.button("📊 History", type="secondary", use_container_width=True, help="View and manage your match history"):
+            st.session_state.page_mode = "progress_tracking"
+            st.session_state.analysis_mode = "📊 History"
+            st.rerun()
+
+    with col4:
+        if st.button("👤 Member Info", type="secondary", use_container_width=True, help="View your profile and account details"):
+            st.session_state.page_mode = "member_info"
+            st.rerun()
+
+    st.markdown("---")
+
+    # Athlete Selection Section (now below action buttons)
     st.subheader("👤 Select Your Athlete")
     st.caption("...")
 
@@ -301,11 +342,9 @@ if st.session_state.page_mode == "landing":
         missing_name_count = len(existing_athletes) - len(valid_athletes)
         athlete_options = ["Select Athlete", "Create New Athlete"] + [a['name'] for a in valid_athletes]
         selected_option = st.selectbox("Choose an athlete", athlete_options, index=0)
-        if missing_name_count > 0:
-            st.warning(f"{missing_name_count} athlete profile(s) missing a name and were hidden. Please check your athlete files.")
+        # Removed warning about missing athlete names
 
         if selected_option == "Select Athlete":
-            st.info("👆 Please select an existing athlete from the dropdown above or choose 'Create New Athlete' to add a new profile.")
             st.session_state.current_athlete_id = None
             st.session_state.registered_athlete_name = ""
             st.session_state.registered_athlete_team = ""
