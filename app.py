@@ -397,22 +397,21 @@ if st.session_state.page_mode == "landing":
                     break
 
             if selected_athlete:
-                st.session_state.current_athlete_id = selected_athlete["athlete_id"]
-                # Automatically set this athlete as Fighter A for match reviews
-                st.session_state.registered_athlete_name = selected_athlete['name']
-                st.session_state.registered_athlete_team = selected_athlete.get('team', '')
-                st.session_state.registered_athlete_belt = selected_athlete.get('current_belt', '')
-                st.session_state.registered_athlete_age_division = selected_athlete.get('current_age_division', '')
-                st.session_state.registered_athlete_weight_class = selected_athlete.get('current_weight_class', '')
-                st.success(f"✅ Selected: {selected_athlete['name']}")
-
-                st.info("🏷️ This athlete will be used as Fighter A in match reviews with profile details auto-populated")
-
-
-                # Always fetch the latest athlete profile from disk
+                # Always fetch the latest athlete profile from disk for all info and session state
                 latest_profile = athlete_manager.get_athlete_profile(selected_athlete["athlete_id"])
-                matches_count = len(latest_profile.get("match_history", [])) if latest_profile else 0
-                st.info(f"📈 Profile has {matches_count} matches")
+                if latest_profile:
+                    st.session_state.current_athlete_id = latest_profile["athlete_id"]
+                    st.session_state.registered_athlete_name = latest_profile['name']
+                    st.session_state.registered_athlete_team = latest_profile.get('team', '')
+                    st.session_state.registered_athlete_belt = latest_profile.get('current_belt', '')
+                    st.session_state.registered_athlete_age_division = latest_profile.get('current_age_division', '')
+                    st.session_state.registered_athlete_weight_class = latest_profile.get('current_weight_class', '')
+                    st.success(f"✅ Selected: {latest_profile['name']}")
+                    st.info("🏷️ This athlete will be used as Fighter A in match reviews with profile details auto-populated")
+                    matches_count = len(latest_profile.get("match_history", []))
+                    st.info(f"📈 Profile has {matches_count} matches")
+                else:
+                    st.error("Could not load athlete profile from disk.")
 
     with col_athlete2:
         if st.session_state.get('current_athlete_id'):
