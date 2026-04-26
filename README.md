@@ -20,12 +20,6 @@ A comprehensive BJJ match analysis and progress tracking tool built with Streaml
 2. Install dependencies: `pip install -r requirements.txt`
 3. Run the app: `streamlit run app.py`
 
-## User Account Storage
-
-- User accounts are stored in `users/users.json`.
-- For backward compatibility, if legacy `users.json` exists at the repository root and `users/users.json` is absent, the app will continue using the legacy file.
-- On a fresh setup, the users file is created automatically when `UserManager` initializes.
-
 ## Usage
 
 1. **Select an Athlete** from the dropdown (or create a new profile)
