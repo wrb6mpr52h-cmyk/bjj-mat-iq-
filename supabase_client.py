@@ -1,6 +1,6 @@
 from supabase import create_client, Client
 
-SUPABASE_URL = "https://gfcvphrbgmmrwtwdwdwt.supabase.co"  # Replace with your Supabase URL
+SUPABASE_URL = "https://gfcvphrbgmmrwtwdwdwt.supabase.com"  # Replace with your Supabase URL
 SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdmY3ZwaHJiZ21tcnd0d2R3ZHd0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzcxNjc1MzAsImV4cCI6MjA5Mjc0MzUzMH0.anRLaqI6wmW-sSN5BcStOJgdRyqvAKLm03A1qo1Cw4s"
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
@@ -12,8 +12,13 @@ def create_athlete_supabase(coach_id, name, belt, weight_class, notes):
         "weight_class": weight_class,
         "notes": notes
     }
-    result = supabase.table("athletes").insert(data).execute()
-    return result
+    try:
+        result = supabase.table("athletes").insert(data).execute()
+        return result
+    except Exception as e:
+        print("Supabase insert error:", e)
+        print("Data sent:", data)
+        raise
 
 def create_match_supabase(athlete_id, coach_id, event_name, video_url):
     data = {
