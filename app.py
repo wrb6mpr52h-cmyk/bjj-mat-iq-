@@ -1998,31 +1998,6 @@ with tab1:
                             st.markdown(f"**Direct Link:** [Open Video]({display_url})")
 
 
-            else:
-                # Show enhanced placeholder
-                st.markdown(
-                    """
-                    <div style="
-                        border: 2px dashed #ccc;
-                        border-radius: 10px;
-                        padding: 30px;
-                        text-align: center;
-                        color: #666;
-                        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-                        margin: 20px 0;
-                    ">
-                        <h3 style="margin-bottom: 15px;">🎬 Video Player Ready</h3>
-                        <p>Enter a video URL above or in Match Info tab</p>
-                        <div style="display: flex; justify-content: space-around; flex-wrap: wrap; margin-top: 15px;">
-                            <div>📺 YouTube</div>
-                            <div>🎥 Vimeo</div>
-                            <div>📁 Google Drive</div>
-                            <div>📼 MP4/WebM</div>
-                        </div>
-                    </div>
-                    """,
-                    unsafe_allow_html=True
-                )
 
     # This block must be at the same indentation as with col_video, not nested under the HTML placeholder
 
