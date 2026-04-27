@@ -148,9 +148,8 @@ if not st.session_state.authenticated:
 # Header with user info and logout
 col_logo, col_title, col_user = st.columns([1, 3, 1])
 
-import streamlit as st
 
-    st.session_state.events = []
+st.session_state.events = []
 if "assessments" not in st.session_state:
 
 try:
