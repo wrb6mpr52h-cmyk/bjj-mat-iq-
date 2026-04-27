@@ -1,8 +1,24 @@
-from supabase import create_client, Client
+import os
+from dotenv import load_dotenv
+load_dotenv()
+from dotenv import load_dotenv
+load_dotenv()
 
-SUPABASE_URL = "https://gfcvphrbgmmrwtwdwdwt.supabase.com"  # Replace with your Supabase URL
-SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdmY3ZwaHJiZ21tcnd0d2R3ZHd0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzcxNjc1MzAsImV4cCI6MjA5Mjc0MzUzMH0.anRLaqI6wmW-sSN5BcStOJgdRyqvAKLm03A1qo1Cw4s"
+SUPABASE_URL = os.environ.get("SUPABASE_URL")
+SUPABASE_KEY = os.environ.get("SUPABASE_KEY")
+
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
+
+def test_supabase_connection():
+    """Test the Supabase connection by listing tables or fetching a simple response."""
+    try:
+        # Try to fetch a list of tables (or a simple select from a known table)
+        response = supabase.table("athletes").select("*").limit(1).execute()
+        print("Supabase connection successful! Response:", response)
+        return True
+    except Exception as e:
+        print("Supabase connection failed:", e)
+        return False
 
 def create_athlete_supabase(coach_id, name, belt, weight_class, notes):
     data = {
