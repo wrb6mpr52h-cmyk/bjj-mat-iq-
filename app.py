@@ -25,48 +25,16 @@ except ImportError as e:
     import os
     # ...existing code...
     # Fallback - define minimal constants if config.py is missing
-    POSITIONS = {}
-    ACTIONS = {}
-    SUBMISSIONS = {}
-    TACTICAL_TAGS = {}
-    ASSESSMENT_AREAS = {}
-    RATING_LABELS = {1: "Poor", 2: "Fair", 3: "Good", 4: "Very Good", 5: "Excellent"}
-    RULESETS = {}
-    BELT_LEVELS = ["White", "Blue", "Purple", "Brown", "Black"]
-    WEIGHT_CLASSES = ["Light", "Medium", "Heavy"]
-    AGE_DIVISIONS = ["Adult"]
-    GI_NOGI = ["Gi", "No-Gi"]
-    BJJ_REASONS = {}
-    MOMENT_RESULTS = []
-    MISSED_OPPORTUNITIES = []
-from review_engine import (
-    calculate_score, build_review_data,
-    export_json, export_markdown, export_pdf, export_word, analyze_timeline_for_assessment,
-    generate_ai_summary_report
-)
-from user_manager import UserManager
-from athlete_manager import AthleteManager
+    import streamlit as st
 
-st.set_page_config(
-    page_title="BJJ Mat IQ - Match Review Tool",
-    page_icon="🥋",
-    layout="wide"
-)
-
-# Initialize user manager
-user_manager = UserManager()
-
-# Debug: Check if users file exists
-users_file_path = os.path.join("users", "users.json")
-if not os.path.exists(users_file_path):
-    st.stop()
-
-# Authentication check
-if "authenticated" not in st.session_state:
-    st.session_state.authenticated = False
-if "current_user" not in st.session_state:
     st.session_state.current_user = None
 if "user_role" not in st.session_state:
+
+    try:
+        from supabase import create_client
+        st.success("Supabase package is installed and importable.")
+    except ImportError as e:
+        st.error(f"Supabase import failed: {e}")
     st.session_state.user_role = None
 
 # Authentication interface
