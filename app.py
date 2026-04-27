@@ -2422,10 +2422,3 @@ if st.session_state.page_mode == "landing":
                 st.write(f"**Total Score:** {profile.get('total_score', 0)}")
                 st.write(f"**Total Matches:** {len(profile.get('match_history', []))}")
                 st.write(f"**Total Reviews:** {len(profile.get('reviews', []))}")
-                st.write(f"**Total Assessments:** {len(profile.get('assessment_reports', []))}")
-                st.write(f"**Total Points:** {profile.get('total_points', 0)}")
-                st.write(f"**Total Score:** {profile.get('total_score', 0)}")
-                st.write(f"**Total Matches:** {len(profile.get('match_history', []))}")
-                st.write(f"**Total Reviews:** {len(profile.get('reviews', []))}")
-                st.write(f"**Total Assessments:** {len(profile.get('assessment_reports', []))}")
-                st.write(f"**Total Points:** {profile.get
