@@ -628,8 +628,7 @@ class AthleteManager:
         athletes = []
         seen_athlete_ids = set()
         
-        debug_dirs = self._get_athlete_dirs()
-        for athlete_dir in debug_dirs:
+        for athlete_dir in self._get_athlete_dirs():
             if not os.path.exists(athlete_dir):
                 continue
             files = os.listdir(athlete_dir)
@@ -649,7 +648,6 @@ class AthleteManager:
                             seen_athlete_ids.add(athlete_id)
                     except (json.JSONDecodeError, IOError):
                         continue  # Skip corrupted files
-        
         return sorted(athletes, key=lambda x: x.get("name", ""))
     
     def search_athletes(self, query: str) -> List[Dict]:
