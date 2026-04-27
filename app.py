@@ -1829,11 +1829,36 @@ with tab1:
 
             # --- Video Review Page ---
             if st.session_state.page_mode == "video_review":
+
                 st.header("🎥 2. Video Review")
                 if st.button("← Back to Home", type="secondary", key="back_video_review"):
                     st.session_state.page_mode = "landing"
                     st.rerun()
-                # ...existing Video Review form code (from tab2) goes here...
+
+                # Ensure edit_event and editing_mode are defined
+                edit_event = st.session_state.get('edit_event', {})
+                editing_mode = st.session_state.get('editing_mode', False)
+
+                # Row 1: Fighter & Position
+                col_fighter, col_pos = st.columns(2)
+
+                with col_fighter:
+                    st.markdown("**🤼 Fighter**")
+                    display_fighter = edit_event.get('fighter', 'Fighter A') if editing_mode else st.session_state.get("current_user", "Username")
+                    if display_fighter == 'Fighter A':
+                        display_fighter = st.session_state.get("current_user", "Username")
+                    event_fighter = st.selectbox("Fighter", [st.session_state.get("current_user", "Username"), "Fighter B"],
+                                               index=0 if not editing_mode else ([st.session_state.get("current_user", "Username"), "Fighter B"].index(display_fighter)),
+                                               key="video_event_fighter")
+
+                with col_pos:
+                    st.markdown("**🥋 Position Details**")
+                    position_category = st.selectbox("Position Category", list(POSITIONS.keys()),
+                                                   index=0 if not editing_mode else list(POSITIONS.keys()).index(next((k for k, v in POSITIONS.items() if edit_event.get('position', '') in v), list(POSITIONS.keys())[0])),
+                                                   key="video_pos_cat")
+                    event_position = st.selectbox("Specific Position", POSITIONS[position_category],
+                                                index=0 if not editing_mode else POSITIONS[position_category].index(edit_event.get('position', POSITIONS[position_category][0])),
+                                                key="video_event_position")
 
             # --- Assessment Page ---
             if st.session_state.page_mode == "assessment":
@@ -1890,160 +1915,6 @@ with tab1:
                                              key="video_act_cat")
                 event_action = st.selectbox("Specific Action", ACTIONS[action_category], 
                                           index=0 if not editing_mode else ACTIONS[action_category].index(edit_event.get('action', ACTIONS[action_category][0])),
-                                          key="video_event_action")
-                
-                # Missed Opportunities under Specific Action
-                st.markdown("**🎯 Missed Opportunity**")
-                # Safely get the index for missed opportunity, defaulting to 0 if not found
-                missed_opportunity_value = edit_event.get('missed_opportunity', MISSED_OPPORTUNITIES[0]) if editing_mode else MISSED_OPPORTUNITIES[0]
-                try:
-                    missed_opportunity_index = MISSED_OPPORTUNITIES.index(missed_opportunity_value) if editing_mode else 0
-                except ValueError:
-                    missed_opportunity_index = 0  # Default to first item if value not found in list
-                
-                event_missed = st.selectbox("What Could Have Been Better?", MISSED_OPPORTUNITIES,
-                                          index=missed_opportunity_index,
-                                          key="video_event_missed")
-
-            with col_result:
-                st.markdown("**🏆 Result & Points**")
-                event_result = st.selectbox("Outcome", MOMENT_RESULTS,
-                                          index=0 if not editing_mode else MOMENT_RESULTS.index(edit_event.get('result', MOMENT_RESULTS[0])),
-                                          key="video_event_result")
-
-                # Calculate points
-                ruleset_key = st.session_state.get("ruleset", "IBJJF")
-                ruleset = RULESETS.get(ruleset_key, {})
-                scoring = ruleset.get("scoring", {})
-                calculated_points = 0
-
-                if "Attempt (Advantage)" in event_result and "Advantage" in scoring:
-                    calculated_points = scoring["Advantage"]
-                elif event_result in scoring:
-                    calculated_points = scoring[event_result]
-
-                st.metric("Points", f"{calculated_points} pts")
-
-            # Row 3: Analysis & Context
-            st.markdown("**🎯 Analysis & Context**")
-            col_reason, col_positioning = st.columns(2)
-
-            with col_reason:
-                st.markdown("**🤔 Why & Motivation**") 
-                reason_category = st.selectbox("Why? Category", list(BJJ_REASONS.keys()), 
-                                             index=0 if not editing_mode else list(BJJ_REASONS.keys()).index(next((k for k, v in BJJ_REASONS.items() if edit_event.get('why', '') in v), list(BJJ_REASONS.keys())[0])),
-                                             key="video_reason_cat")
-                event_why = st.selectbox("Specific Reason", BJJ_REASONS[reason_category], 
-                                       index=0 if not editing_mode else BJJ_REASONS[reason_category].index(edit_event.get('why', BJJ_REASONS[reason_category][0])),
-                                       key="video_event_why")
-
-            with col_positioning:
-                st.markdown("**📐 Base & Position**")
-                event_positioning = st.selectbox("Positioning & Base", ["None"] + TACTICAL_TAGS["Positioning and Base"], 
-                                               index=0 if not editing_mode else (["None"] + TACTICAL_TAGS["Positioning and Base"]).index(edit_event.get('positioning', 'None') or 'None'),
-                                               key="video_event_positioning")
-
-            # Row 4: Notes
-            st.markdown("**📝 Additional Notes**")
-            event_notes = st.text_area("Observations, tactical details, or other context:", 
-                                      value=edit_event.get('notes', '') if editing_mode else '',
-                                      height=80, 
-                                      placeholder="e.g., 'Good setup but rushed finish', 'Opponent was tired', 'Perfect timing'...",
-                                      key="video_event_notes")
-
-            # Action buttons for timeline
-            col_add, col_update, col_cancel = st.columns(3)
-
-            with col_add:
-                if not editing_mode:
-                    if st.button("➕ Add Key Moment", type="primary", key="video_add_moment"):
-                        # Map display selection to internal identifier
-                        internal_fighter = "Fighter A" if event_fighter == current_user else event_fighter
-
-                        new_event = {
-                            "timestamp": event_time,
-                            "fighter": internal_fighter,
-                            "position": event_position,
-                            "action": event_action,
-                            "result": event_result,
-                            "points": calculated_points,
-                            "notes": event_notes,
-                            "why": event_why,
-                            "positioning": event_positioning if event_positioning != "None" else "",
-                            "missed_opportunity": event_missed if event_missed != "None" else ""
-                        }
-                        st.session_state.events.append(new_event)
-
-                        # Reset assessment calculation flag when adding new events
-                        if 'assessments_calculated' in st.session_state:
-                            del st.session_state.assessments_calculated
-
-                        st.success(f"✅ Added: {event_time} - {event_fighter} - {event_action}")
-                        st.rerun()
-
-            with col_update:
-                if editing_mode:
-                    if st.button("💾 Update Key Moment", type="primary", key="video_update_moment"):
-                        # Map display selection to internal identifier
-                        internal_fighter = "Fighter A" if event_fighter == current_user else event_fighter
-
-                        updated_event = {
-                            "timestamp": event_time,
-                            "fighter": internal_fighter,
-                            "position": event_position,
-                            "action": event_action,
-                            "result": event_result,
-                            "points": calculated_points,
-                            "notes": event_notes,
-                            "why": event_why,
-                            "positioning": event_positioning if event_positioning != "None" else "",
-                            "missed_opportunity": event_missed if event_missed != "None" else ""
-                        }
-                        st.session_state.events[st.session_state.editing_event] = updated_event
-                        st.session_state.editing_event = None
-                        st.success(f"✅ Updated: {event_time} - {event_fighter} - {event_action}")
-                        st.rerun()
-
-            with col_cancel:
-                if editing_mode:
-                    if st.button("❌ Cancel Edit", key="video_cancel_edit"):
-                        st.session_state.editing_event = None
-                        st.rerun()
-
-            st.markdown("---")
-
-            # Use the input directly - prioritize manual input over match info
-            display_url = video_url_input if video_url_input else match_info_video_url
-
-            if display_url:
-                try:
-                    # Handle different video types with better embedding
-                    if "youtube.com" in display_url or "youtu.be" in display_url:
-                        # Convert YouTube URL to embed format
-                        video_id = None
-
-                        if "youtu.be/" in display_url:
-                            video_id = display_url.split("youtu.be/")[1].split("?")[0]
-                        elif "watch?v=" in display_url:
-                            video_id = display_url.split("watch?v=")[1].split("&")[0]
-
-                        if video_id:
-                            # Try Streamlit video first
-                            try:
-                                st.video(display_url)
-                                st.success("✅ YouTube video loaded!")
-                            except:
-                                # Fallback to iframe embed
-                                embed_url = f"https://www.youtube.com/embed/{video_id}?rel=0&modestbranding=1"
-                                st.markdown(
-                                    f"""
-                                    <iframe width="100%" height="400" 
-                                    src="{embed_url}" 
-                                    frameborder="0" 
-                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                                    allowfullscreen>
-                                    </iframe>
-                                    """,
                                     unsafe_allow_html=True
                                 )
                                 st.info("🎥 Video embedded via iframe")
@@ -2151,39 +2022,40 @@ with tab1:
                 )
 
     # This block must be at the same indentation as with col_video, not nested under the HTML placeholder
-    with col_score:
-        st.subheader("🏆 Live Score")
 
-        # Get ruleset for scoring
-        ruleset_key = st.session_state.get("ruleset", "IBJJF")
+    # Score display (not in a column)
+    st.subheader("🏆 Live Score")
 
-        # Show match info - use registered athlete name
-        registered_athlete_name = st.session_state.get("registered_athlete_name", "")
-        fighter_a = st.session_state.get("fighter_a") or registered_athlete_name or st.session_state.get("current_user", "Username")
-        fighter_b = st.session_state.get("fighter_b", "Fighter B")
-        match_number = st.session_state.get("match_number", "")
+    # Get ruleset for scoring
+    ruleset_key = st.session_state.get("ruleset", "IBJJF")
 
-        if match_number:
-            st.caption(f"🏷️ {match_number}")
-        st.caption(f"🤼 {fighter_a} vs {fighter_b}")
+    # Show match info - use registered athlete name
+    registered_athlete_name = st.session_state.get("registered_athlete_name", "")
+    fighter_a = st.session_state.get("fighter_a") or registered_athlete_name or st.session_state.get("current_user", "Username")
+    fighter_b = st.session_state.get("fighter_b", "Fighter B")
+    match_number = st.session_state.get("match_number", "")
 
-        # Calculate and display current score
-        if st.session_state.events:
-            final_scores = calculate_score(st.session_state.events, ruleset_key)
-            st.metric(f"🎯 {fighter_a}", f"{final_scores['fighter_a']} pts")
-            st.metric("🎯 Fighter B", f"{final_scores['fighter_b']} pts")
-            st.metric("Events Logged", len(st.session_state.events))
-        else:
-            st.metric(f"🎯 {fighter_a}", "0 pts")
-            st.metric("🎯 Fighter B", "0 pts")
-            st.info("🏁 Log events below to see scoring")
+    if match_number:
+        st.caption(f"🏷️ {match_number}")
+    st.caption(f"🤼 {fighter_a} vs {fighter_b}")
 
-        # Quick scoring reference
-        if ruleset_key in RULESETS:
-            with st.expander("📊 Scoring Rules"):
-                scoring = RULESETS[ruleset_key]["scoring"]
-                for action, points in scoring.items():
-                    st.caption(f"{action}: **{points} pts**")
+    # Calculate and display current score
+    if st.session_state.events:
+        final_scores = calculate_score(st.session_state.events, ruleset_key)
+        st.metric(f"🎯 {fighter_a}", f"{final_scores['fighter_a']} pts")
+        st.metric("🎯 Fighter B", f"{final_scores['fighter_b']} pts")
+        st.metric("Events Logged", len(st.session_state.events))
+    else:
+        st.metric(f"🎯 {fighter_a}", "0 pts")
+        st.metric("🎯 Fighter B", "0 pts")
+        st.info("🏁 Log events below to see scoring")
+
+    # Quick scoring reference
+    if ruleset_key in RULESETS:
+        with st.expander("📊 Scoring Rules"):
+            scoring = RULESETS[ruleset_key]["scoring"]
+            for action, points in scoring.items():
+                st.caption(f"{action}: **{points} pts**")
 
         # Display current timeline (compact view)
         if st.session_state.events:
