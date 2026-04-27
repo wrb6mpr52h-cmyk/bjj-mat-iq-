@@ -1858,8 +1858,8 @@ with tab1:
                     st.session_state.page_mode = "landing"
                     st.rerun()
                 # ...existing Progress Tracking code (from tab5) goes here...
-                                           placeholder="2:35",
-                                           key="video_event_time")
+                    placeholder="2:35",
+                    key="video_event_time")
 
             current_user = st.session_state.get("current_user", "Username")
             with col_fighter:
