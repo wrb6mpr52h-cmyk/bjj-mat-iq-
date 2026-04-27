@@ -628,14 +628,11 @@ class AthleteManager:
         athletes = []
         seen_athlete_ids = set()
         
-        import streamlit as st
         debug_dirs = self._get_athlete_dirs()
-        st.warning(f"[DEBUG] list_all_athletes: athlete_dirs={debug_dirs}")
         for athlete_dir in debug_dirs:
             if not os.path.exists(athlete_dir):
                 continue
             files = os.listdir(athlete_dir)
-            st.warning(f"[DEBUG] list_all_athletes: files in {athlete_dir}: {files}")
             for filename in files:
                 if filename.endswith('.json'):
                     athlete_id = filename[:-5]  # Remove .json
@@ -648,13 +645,9 @@ class AthleteManager:
                             profile = json.load(f)
                         # Check access permissions
                         if self._can_access_athlete(profile):
-                            st.warning(f"[DEBUG] list_all_athletes: adding athlete {athlete_id}")
                             athletes.append(profile)
                             seen_athlete_ids.add(athlete_id)
-                        else:
-                            st.warning(f"[DEBUG] list_all_athletes: access denied for {athlete_id}")
                     except (json.JSONDecodeError, IOError):
-                        st.warning(f"[DEBUG] list_all_athletes: failed to load {filename}")
                         continue  # Skip corrupted files
         
         return sorted(athletes, key=lambda x: x.get("name", ""))
@@ -869,7 +862,7 @@ class AthleteManager:
             return success
             
         except Exception as e:
-            print(f"Error deleting match review {review_id}: {e}")
+            # ...existing code...
             return False
     
     def update_match_review(self, review_id: str, updated_review_data: Dict) -> bool:
@@ -890,5 +883,5 @@ class AthleteManager:
             return False
             
         except Exception as e:
-            print(f"Error updating match review {review_id}: {e}")
+            # ...existing code...
             return False

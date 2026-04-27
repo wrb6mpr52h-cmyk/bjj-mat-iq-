@@ -73,7 +73,7 @@ if "user_role" not in st.session_state:
 if not st.session_state.authenticated:
     st.title("🥋 BJJ Mat IQ - Login")
     st.markdown("**The complete BJJ match analysis and progress tracking system**")
-    st.info("📹 **Analyze match videos** • 📊 **Track skill development** • 🎯 **Get personalized training recommendations**")
+    # ...existing code...
 
     auth_tab1, auth_tab2, auth_tab3 = st.tabs(["Login", "Create Account", "Reset Password"])
 
@@ -99,15 +99,12 @@ if not st.session_state.authenticated:
                     st.warning("Please enter both username and password")
         
         # Show forgot password link
-        st.caption("📝 **Forgot your password?** Use the 'Reset Password' tab above to reset it.")
+        # ...existing code...
 
     with auth_tab2:
         with st.form("register_form"):
             st.subheader("Create New Account")
-            st.info("🆕 **Account Types:**\n"
-                   "• **Individual Athlete**: Personal match analysis and progress tracking\n"
-                   "• **Team Owner/Coach**: Manage multiple athletes and team analytics\n"
-                   "• **Administrator**: Full system access and user management")
+                 # ...existing code...
 
             new_username = st.text_input("Choose Username")
             new_password = st.text_input("Choose Password", type="password")
@@ -173,7 +170,7 @@ if not st.session_state.authenticated:
                     )
                     if success:
                         st.success("✅ Password reset successfully! You can now login with your new password.")
-                        st.info("🔐 Please use the 'Login' tab to access your account.")
+                        # ...existing code...
                     else:
                         st.error(f"❌ {message}")
 
