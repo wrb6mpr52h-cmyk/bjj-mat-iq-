@@ -2150,6 +2150,7 @@ with tab1:
                     unsafe_allow_html=True
                 )
 
+        # This block must be at the same indentation as with col_video, not nested under the HTML placeholder
         with col_score:
             st.subheader("🏆 Live Score")
 
