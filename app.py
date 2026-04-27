@@ -2150,40 +2150,40 @@ with tab1:
                     unsafe_allow_html=True
                 )
 
-        # This block must be at the same indentation as with col_video, not nested under the HTML placeholder
-        with col_score:
-            st.subheader("🏆 Live Score")
+    # This block must be at the same indentation as with col_video, not nested under the HTML placeholder
+    with col_score:
+        st.subheader("🏆 Live Score")
 
-            # Get ruleset for scoring
-            ruleset_key = st.session_state.get("ruleset", "IBJJF")
+        # Get ruleset for scoring
+        ruleset_key = st.session_state.get("ruleset", "IBJJF")
 
-            # Show match info - use registered athlete name
-            registered_athlete_name = st.session_state.get("registered_athlete_name", "")
-            fighter_a = st.session_state.get("fighter_a") or registered_athlete_name or st.session_state.get("current_user", "Username")
-            fighter_b = st.session_state.get("fighter_b", "Fighter B")
-            match_number = st.session_state.get("match_number", "")
+        # Show match info - use registered athlete name
+        registered_athlete_name = st.session_state.get("registered_athlete_name", "")
+        fighter_a = st.session_state.get("fighter_a") or registered_athlete_name or st.session_state.get("current_user", "Username")
+        fighter_b = st.session_state.get("fighter_b", "Fighter B")
+        match_number = st.session_state.get("match_number", "")
 
-            if match_number:
-                st.caption(f"🏷️ {match_number}")
-            st.caption(f"🤼 {fighter_a} vs {fighter_b}")
+        if match_number:
+            st.caption(f"🏷️ {match_number}")
+        st.caption(f"🤼 {fighter_a} vs {fighter_b}")
 
-            # Calculate and display current score
-            if st.session_state.events:
-                final_scores = calculate_score(st.session_state.events, ruleset_key)
-                st.metric(f"🎯 {fighter_a}", f"{final_scores['fighter_a']} pts")
-                st.metric("🎯 Fighter B", f"{final_scores['fighter_b']} pts")
-                st.metric("Events Logged", len(st.session_state.events))
-            else:
-                st.metric(f"🎯 {fighter_a}", "0 pts")
-                st.metric("🎯 Fighter B", "0 pts")
-                st.info("🏁 Log events below to see scoring")
+        # Calculate and display current score
+        if st.session_state.events:
+            final_scores = calculate_score(st.session_state.events, ruleset_key)
+            st.metric(f"🎯 {fighter_a}", f"{final_scores['fighter_a']} pts")
+            st.metric("🎯 Fighter B", f"{final_scores['fighter_b']} pts")
+            st.metric("Events Logged", len(st.session_state.events))
+        else:
+            st.metric(f"🎯 {fighter_a}", "0 pts")
+            st.metric("🎯 Fighter B", "0 pts")
+            st.info("🏁 Log events below to see scoring")
 
-            # Quick scoring reference
-            if ruleset_key in RULESETS:
-                with st.expander("📊 Scoring Rules"):
-                    scoring = RULESETS[ruleset_key]["scoring"]
-                    for action, points in scoring.items():
-                        st.caption(f"{action}: **{points} pts**")
+        # Quick scoring reference
+        if ruleset_key in RULESETS:
+            with st.expander("📊 Scoring Rules"):
+                scoring = RULESETS[ruleset_key]["scoring"]
+                for action, points in scoring.items():
+                    st.caption(f"{action}: **{points} pts**")
 
         # Display current timeline (compact view)
         if st.session_state.events:
