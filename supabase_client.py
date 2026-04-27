@@ -1,7 +1,7 @@
 from supabase import create_client, Client
 
-SUPABASE_URL = "https://YOUR_PROJECT.supabase.co"  # Replace with your Supabase URL
-SUPABASE_KEY = "YOUR_SUPABASE_API_KEY"  # Replace with your Supabase API key
+SUPABASE_URL = "https://gfcvphrbgmmrwtwdwdwt.supabase.co"  # Replace with your Supabase URL
+SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdmY3ZwaHJiZ21tcnd0d2R3ZHd0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzcxNjc1MzAsImV4cCI6MjA5Mjc0MzUzMH0.anRLaqI6wmW-sSN5BcStOJgdRyqvAKLm03A1qo1Cw4s"
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 def create_athlete_supabase(coach_id, name, belt, weight_class, notes):
