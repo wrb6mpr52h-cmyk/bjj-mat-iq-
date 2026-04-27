@@ -1997,9 +1997,6 @@ with tab1:
                             st.warning(f"⚠️ Could not embed video: {str(e)}")
                             st.markdown(f"**Direct Link:** [Open Video]({display_url})")
 
-                except Exception as e:
-                    st.error(f"❌ Error processing video: {str(e)}")
-                    st.markdown(f"**Fallback Link:** [Open Video]({display_url})")
 
             else:
                 # Show enhanced placeholder
