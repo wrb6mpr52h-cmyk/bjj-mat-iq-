@@ -59,11 +59,6 @@ user_manager = UserManager()
 # Debug: Check if users file exists
 users_file_path = os.path.join("users", "users.json")
 if not os.path.exists(users_file_path):
-    st.error(f"❌ Users file not found at: {users_file_path}")
-    st.error(f"Current working directory: {os.getcwd()}")
-    st.error(f"Files in current directory: {os.listdir('.')}")
-    if os.path.exists("users"):
-        st.error(f"Files in users directory: {os.listdir('users')}")
     st.stop()
 
 # Authentication check
@@ -401,12 +396,8 @@ if st.session_state.page_mode == "landing":
                     st.session_state.registered_athlete_belt = latest_profile.get('current_belt', '')
                     st.session_state.registered_athlete_age_division = latest_profile.get('current_age_division', '')
                     st.session_state.registered_athlete_weight_class = latest_profile.get('current_weight_class', '')
-                    st.success(f"✅ Selected: {latest_profile['name']}")
-                    st.info("🏷️ This athlete will be used as Fighter A in match reviews with profile details auto-populated")
-                    matches_count = len(latest_profile.get("match_history", []))
-                    st.info(f"📈 Profile has {matches_count} matches")
                 else:
-                    st.error("Could not load athlete profile from disk.")
+                    pass
 
     with col_athlete2:
         if st.session_state.get('current_athlete_id'):
