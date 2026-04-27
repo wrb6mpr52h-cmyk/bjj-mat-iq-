@@ -1915,30 +1915,36 @@ with tab1:
                                              key="video_act_cat")
                 event_action = st.selectbox("Specific Action", ACTIONS[action_category], 
                                           index=0 if not editing_mode else ACTIONS[action_category].index(edit_event.get('action', ACTIONS[action_category][0])),
-                                    unsafe_allow_html=True
-                                )
-                                st.info("🎥 Video embedded via iframe")
+                                          key="video_event_action")
+
+                # --- Video Embedding Logic (YouTube/Vimeo) ---
+                if 'display_url' in locals() or 'display_url' in globals():
+                    if "youtube.com" in display_url or "youtu.be" in display_url:
+                        # Extract YouTube video ID
+                        import re
+                        yt_match = re.search(r"(?:v=|be/)([\w-]+)", display_url)
+                        if yt_match:
+                            yt_id = yt_match.group(1)
+                            embed_url = f"https://www.youtube.com/embed/{yt_id}"
+                            st.markdown(
+                                f"""
+                                <iframe width='100%' height='400' src='{embed_url}' frameborder='0' allow='autoplay; encrypted-media' allowfullscreen></iframe>
+                                """,
+                                unsafe_allow_html=True
+                            )
+                            st.info("🎥 Video embedded via iframe")
                         else:
                             st.error("❌ Could not extract YouTube video ID")
-
                     elif "vimeo.com" in display_url:
-                        # Handle Vimeo videos
                         try:
                             st.video(display_url)
                             st.success("✅ Vimeo video loaded!")
                         except:
-                            # Extract Vimeo ID for embed
                             vimeo_id = display_url.split("/")[-1].split("?")[0]
                             embed_url = f"https://player.vimeo.com/video/{vimeo_id}"
-
                             st.markdown(
                                 f"""
-                                <iframe width="100%" height="400" 
-                                src="{embed_url}" 
-                                frameborder="0" 
-                                allow="autoplay; fullscreen; picture-in-picture" 
-                                allowfullscreen>
-                                </iframe>
+                                <iframe width='100%' height='400' src='{embed_url}' frameborder='0' allow='autoplay; fullscreen; picture-in-picture' allowfullscreen></iframe>
                                 """,
                                 unsafe_allow_html=True
                             )
