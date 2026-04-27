@@ -269,38 +269,7 @@ ALL_BJJ_REASONS = flatten_dict(BJJ_REASONS)
 # Navigation and Page Mode Handling
 if st.session_state.page_mode == "landing":
     # LANDING PAGE
-    st.markdown("---")
-    st.markdown("### 🏠 Welcome to BJJ Mat IQ")
-    st.markdown("Your complete BJJ match analysis and progress tracking system")
-
-    # Overall workflow instructions
-    st.info("🚀 **Getting Started:**\n"
-            "1. 👤 **Select an Athlete** from the dropdown below (or create new one)\n"
-            "2. 🥊 **Start a New Match Review** using the button below\n" 
-            "3. 📝 **Fill Match Details** → 🎥 **Watch & Log Events** → 📊 **Review Assessment**\n"
-            "4. 📄 **Export Reports** and track progress over time")
-
-
-    # Move action buttons to the top
-    st.markdown("---")
-    st.markdown("Choose an action below:")
-
-    col1, col2, col3, col4 = st.columns(4)
-
-
-    with col1:
-        pass  # No button in this column currently
-
-    # (Removed duplicate action buttons here; only top-of-page versions remain)
-
-
-    # (Removed duplicate '📊 History' and '👤 Member Info' buttons; only top-of-page versions remain)
-
-    st.markdown("---")
-
-    # Athlete Selection Section (now below action buttons)
-    st.subheader("👤 Select Your Athlete")
-    st.caption("...")
+    # ...existing code...
 
     col_athlete1, col_athlete2 = st.columns([2, 1])
 
